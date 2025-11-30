@@ -1,175 +1,196 @@
-# Spécifications Fonctionnelles - AI Security Test Repository
-
-**Version:** 1.0  
-**Date:** 2025-01-28  
-**Statut:** Draft  
-**Niveau de confiance global:** 🟢 95%
+# 📋 SPÉCIFICATIONS FONCTIONNELLES
+**Repository de Test pour AI Security Code Review Platform**
 
 ---
 
-## 📋 Métadonnées du document
+## 📊 MÉTADONNÉES
 
-| Élément | Valeur |
-|---------|--------|
+| Attribut | Valeur |
+|----------|--------|
+| **Projet** | ai-security-test |
 | **Repository** | kbekouchi/ai-security-test |
-| **Langage principal** | Python (Flask) + JavaScript |
-| **Branche par défaut** | main |
-| **Type de projet** | Repository de test - Sécurité applicative |
-| **Sources analysées** | ✅ README.md, ✅ Code source (3 fichiers), ✅ Structure complète |
+| **Version** | 1.0 |
+| **Date** | 2025 |
+| **Statut** | 🟢 DRAFT |
+| **Confiance globale** | 90% 🟢 |
+| **Auteur** | Expert Specs Fonctionnelles |
+| **Sources** | Code source GitHub, README.md |
 
 ---
 
-## 1. CONTEXTE ET OBJECTIFS 🎯
+## 🎯 SECTION 1 : CONTEXTE ET OBJECTIFS
+**Confiance: 95% 🟢** | **Source: README.md, analyse code**
 
-**Niveau de confiance:** 🟢 95%
+### 1.1 Contexte Projet
 
-### 1.1 Contexte général
+Le repository **ai-security-test** est un projet de test intentionnellement vulnérable destiné à servir de base d'évaluation pour une plateforme d'AI Code Review spécialisée dans la détection de vulnérabilités de sécurité.
 
-**Source:** `README.md` (ligne 2)
+**Type**: Repository de test / Vulnerable by Design  
+**Langage principal**: Python (Flask)  
+**Branche par défaut**: main  
+**Statut**: Actif
 
-Ce repository est un **environnement de test intentionnellement vulnérable** conçu pour servir de base de validation pour une plateforme d'AI Code Review. Il contient des vulnérabilités de sécurité délibérément introduites pour tester la capacité d'outils d'analyse automatisée à détecter des failles critiques.
+### 1.2 Objectifs Principaux
 
-**Traçabilité:**
-- 🔗 `README.md:2` - "Contient des vulnérabilités intentionnelles"
-- 🔗 `web/views.py:1` - "CONTIENT DES VULNÉRABILITÉS XSS"
-- 🔗 `utils/helpers.py:1` - "VULNÉRABILITÉS DIVERSES"
-- 🔗 `static/js/frontend.js:2` - "CONTIENT DES VULNÉRABILITÉS XSS"
+| ID | Objectif | Priorité | Source |
+|----|----------|----------|--------|
+| OBJ-001 | Fournir un ensemble de vulnérabilités réelles pour tester les capacités de détection d'une plateforme AI | 🔴 CRITIQUE | README.md |
+| OBJ-002 | Couvrir les vulnérabilités OWASP Top 10 les plus courantes | 🔴 CRITIQUE | Analyse code |
+| OBJ-003 | Servir de benchmark pour évaluer la précision de détection | 🟡 HAUTE | Déduction |
+| OBJ-004 | Permettre des tests reproductibles et documentés | 🟡 HAUTE | Déduction |
 
-### 1.2 Objectifs du projet
+### 1.3 Parties Prenantes
 
-| Objectif | Description | Priorité | Source |
-|----------|-------------|----------|--------|
-| **OBJ-01** | Fournir un environnement de test réaliste avec vulnérabilités connues | ⭐⭐⭐ Critique | README.md |
-| **OBJ-02** | Valider la détection de vulnérabilités XSS (Cross-Site Scripting) | ⭐⭐⭐ Critique | views.py, frontend.js |
-| **OBJ-03** | Valider la détection de Command Injection | ⭐⭐⭐ Critique | views.py, helpers.py |
-| **OBJ-04** | Tester la détection de credentials hardcodés | ⭐⭐ Haute | helpers.py:35 |
-| **OBJ-05** | Tester la détection d'exposition de secrets (API keys) | ⭐⭐ Haute | frontend.js:32-36 |
-| **OBJ-06** | Valider la détection de désérialisation non sécurisée | ⭐⭐ Haute | helpers.py:20-23 |
-| **OBJ-07** | Tester la détection de Path Traversal | ⭐⭐ Haute | helpers.py:25-29 |
-| **OBJ-08** | Identifier les mauvaises pratiques (debug mode en production) | ⭐ Moyenne | views.py:40 |
-
-### 1.3 Parties prenantes
-
-**Niveau de confiance:** 🟡 60% (inféré)
-
-| Rôle | Responsabilité | Implication |
+| Rôle | Responsabilité | Interaction |
 |------|----------------|-------------|
-| **Équipe Sécurité** | Validation des vulnérabilités | Haute |
-| **Équipe AI/ML** | Entraînement et validation des modèles de détection | Haute |
-| **Développeurs** | Compréhension des patterns vulnérables | Moyenne |
-| **DevSecOps** | Intégration dans les pipelines CI/CD | Moyenne |
+| **Développeurs AI Platform** | Utilisent le repo pour tester leur outil | Lecture code, analyse résultats |
+| **Security Researchers** | Valident la pertinence des vulnérabilités | Audit code, suggestions |
+| **QA/Testeurs** | Vérifient la détection des vulnérabilités | Exécution tests, validation |
+
+### 1.4 Contraintes Identifiées
+
+- ⚠️ **Contrainte de sécurité**: Ne JAMAIS déployer en production
+- ⚠️ **Contrainte d'usage**: Uniquement à des fins éducatives et de test
+- ⚠️ **Contrainte légale**: Respect des lois sur la sécurité informatique
 
 ---
 
-## 2. PÉRIMÈTRE FONCTIONNEL 📦
+## 🔍 SECTION 2 : PÉRIMÈTRE FONCTIONNEL
+**Confiance: 90% 🟢** | **Source: Arborescence GitHub, analyse fichiers**
 
-**Niveau de confiance:** 🟢 98%
+### 2.1 Vue d'Ensemble du Système
 
-### 2.1 Dans le périmètre ✅
-
-#### 2.1.1 Composants applicatifs
-
-**Source:** Structure repository analysée via `github_get_tree`
-
-| Composant | Fichier | Taille | Vulnérabilités incluses | Confiance |
-|-----------|---------|--------|------------------------|----------|
-| **Application Web Flask** | `web/views.py` | 1175 octets | XSS (×2), Command Injection, Debug mode | 🟢 100% |
-| **Utilitaires Backend** | `utils/helpers.py` | 1464 octets | Command Injection (×2), Pickle deserialization, Path Traversal, Hardcoded credentials, eval() | 🟢 100% |
-| **Frontend JavaScript** | `static/js/frontend.js` | 1371 octets | XSS (×4), Secrets exposés, eval(), HTTP non sécurisé | 🟢 100% |
-| **Configuration** | `.gitignore` | 4688 octets | Gestion des fichiers ignorés | 🟢 100% |
-| **Documentation** | `README.md` | 120 octets | Description du projet | 🟢 100% |
-
-#### 2.1.2 Types de vulnérabilités couvertes
-
-**Traçabilité complète:**
-
-1. **XSS (Cross-Site Scripting)** - 6 instances
-   - 🔗 `views.py:14` - Template non échappé avec f-string
-   - 🔗 `views.py:27` - Retour HTML direct avec input utilisateur
-   - 🔗 `frontend.js:6` - innerHTML avec input utilisateur
-   - 🔗 `frontend.js:11-12` - document.write() avec données utilisateur
-   - 🔗 `frontend.js:23` - setAttribute() avec input non sanitisé
-   - 🔗 `frontend.js:26-27` - outerHTML avec concaténation
-
-2. **Command Injection** - 4 instances
-   - 🔗 `views.py:35` - os.system() avec paramètre utilisateur
-   - 🔗 `helpers.py:9` - os.system() avec commande utilisateur
-   - 🔗 `helpers.py:15` - subprocess.run() avec shell=True
-   - 🔗 `helpers.py:35` - os.system() avec credentials hardcodés
-
-3. **Code Injection** - 2 instances
-   - 🔗 `frontend.js:16` - eval() sur script utilisateur
-   - 🔗 `helpers.py:47` - eval() sur expression utilisateur
-
-4. **Désérialisation non sécurisée** - 1 instance
-   - 🔗 `helpers.py:22` - pickle.loads() sur données non fiables
-
-5. **Path Traversal** - 1 instance
-   - 🔗 `helpers.py:28` - open() avec concaténation de filename utilisateur
-
-6. **Secrets exposés** - 4 instances
-   - 🔗 `helpers.py:35` - Mot de passe MySQL en clair
-   - 🔗 `frontend.js:32` - Clé API exposée
-   - 🔗 `frontend.js:33` - Token secret exposé
-   - 🔗 `frontend.js:34` - Clé Stripe exposée
-
-7. **Mauvaises pratiques** - 2 instances
-   - 🔗 `views.py:40` - Debug mode activé en production
-   - 🔗 `frontend.js:41` - Transmission HTTP non sécurisée
-
-### 2.2 Hors périmètre ❌
-
-**Niveau de confiance:** 🟢 90%
-
-| Élément | Raison | Confiance |
-|---------|--------|----------|
-| **Tests unitaires** | Aucun fichier de test détecté | 🟢 100% |
-| **Configuration Docker** | Aucun Dockerfile ou docker-compose.yml | 🟢 100% |
-| **Base de données** | Aucun schéma ou migration détecté | 🟢 100% |
-| **API REST complète** | Seulement 3 routes de démonstration | 🟢 100% |
-| **Authentification** | Non implémentée | 🟢 100% |
-| **Logging** | Non implémenté | 🟢 100% |
-| **Environnement de production réel** | Repository de test uniquement | 🟢 100% |
-| **Vulnérabilités infrastructure** | Focus sur le code applicatif | 🟡 80% |
-
-### 2.3 Limites et contraintes
-
-**Source:** Analyse du code et structure
-
-| Type | Contrainte | Impact | Source |
-|------|-----------|--------|--------|
-| **Technique** | Python Flask requis | Installation des dépendances nécessaire | views.py:3 |
-| **Sécurité** | ⚠️ NE JAMAIS déployer en production | Vulnérabilités intentionnelles critiques | README.md |
-| **Usage** | Environnement isolé obligatoire | Risque d'exploitation réelle | Toutes les vulnérabilités |
-| **Scope** | Limité aux vulnérabilités applicatives | Pas de tests infrastructure | Structure projet |
-
-### 2.4 Dépendances identifiées
-
-**Niveau de confiance:** 🟡 70% (inféré du code)
-
-```python
-# Dépendances Python détectées
-Flask           # views.py:3
-os              # views.py:4, helpers.py:3
-subprocess      # helpers.py:4
-pickle          # helpers.py:5
+```
+ai-security-test/
+├── web/              → Application Flask vulnérable
+│   └── views.py      → Routes HTTP avec vulnérabilités XSS, Command Injection
+├── utils/            → Fonctions utilitaires vulnérables
+│   └── helpers.py    → Helpers avec multiples vulnérabilités
+├── static/           → Ressources frontend
+│   └── js/
+│       └── frontend.js → JavaScript avec XSS, secrets exposés
+├── README.md         → Documentation projet
+└── .gitignore        → Configuration Git
 ```
 
-**Note:** ⚪ Aucun fichier `requirements.txt` ou `pyproject.toml` détecté - Confiance 60%
+### 2.2 Modules Fonctionnels
+
+#### 2.2.1 Module WEB (web/views.py)
+**Confiance: 95% 🟢** | **Source: web/views.py**
+
+| Composant | Description | Vulnérabilités Intentionnelles | Ligne |
+|-----------|-------------|-------------------------------|-------|
+| **Route /profile** | Page profil utilisateur | XSS via template non échappé | L8-23 |
+| **Route /search** | Fonction recherche | XSS reflected dans réponse HTML | L25-31 |
+| **Route /admin** | Panel administration | Command Injection via os.system() | L33-42 |
+| **Configuration Flask** | Démarrage app | Debug mode activé en production | L45-46 |
+
+**Périmètre IN:**
+- ✅ 3 routes HTTP vulnérables
+- ✅ Gestion paramètres GET
+- ✅ Rendu templates dynamiques
+- ✅ Exécution commandes système
+
+**Périmètre OUT:**
+- ❌ Authentification utilisateurs
+- ❌ Base de données
+- ❌ API REST complète
+- ❌ Tests unitaires
+
+#### 2.2.2 Module UTILS (utils/helpers.py)
+**Confiance: 95% 🟢** | **Source: utils/helpers.py**
+
+| Fonction | Vulnérabilité | Type OWASP | Ligne |
+|----------|---------------|------------|-------|
+| `execute_command()` | Command Injection via os.system | A03:2021 Injection | L8-12 |
+| `run_shell_command()` | shell=True avec input non validé | A03:2021 Injection | L14-19 |
+| `deserialize_data()` | pickle.loads non sécurisé | A08:2021 Deserialization | L21-25 |
+| `read_file()` | Path Traversal | A01:2021 Broken Access | L27-32 |
+| `backup_database()` | Credentials hardcodés | A07:2021 Auth Failures | L34-38 |
+| `import_module_dynamic()` | Import dynamique non sécurisé | A03:2021 Injection | L41-43 |
+| `calculate()` | eval() sur input utilisateur | A03:2021 Injection | L46-48 |
+
+**Périmètre IN:**
+- ✅ 7 fonctions utilitaires vulnérables
+- ✅ Couverture multiples types de vulnérabilités
+- ✅ Exemples réalistes d'erreurs courantes
+
+**Périmètre OUT:**
+- ❌ Versions sécurisées des fonctions
+- ❌ Validation des inputs
+- ❌ Sanitization
+
+#### 2.2.3 Module FRONTEND (static/js/frontend.js)
+**Confiance: 95% 🟢** | **Source: static/js/frontend.js**
+
+| Composant | Vulnérabilité | Impact | Ligne |
+|-----------|---------------|--------|-------|
+| `displayUserInput()` | XSS via innerHTML | Exécution code arbitraire | L6-9 |
+| `loadUserData()` | XSS via document.write | Exécution code arbitraire | L11-15 |
+| `executeUserScript()` | eval() dangereux | RCE côté client | L17-20 |
+| `updateProfile()` | XSS via setAttribute + outerHTML | DOM-based XSS | L22-31 |
+| `CONFIG` object | Secrets hardcodés côté client | Exposition credentials | L34-38 |
+| `sendAnalytics()` | Transmission HTTP non chiffrée | MITM possible | L40-48 |
+
+**Périmètre IN:**
+- ✅ 4 fonctions JavaScript vulnérables
+- ✅ Secrets API exposés
+- ✅ Communications non sécurisées
+
+**Périmètre OUT:**
+- ❌ Framework frontend (React, Vue)
+- ❌ Bundler/Build tools
+- ❌ Tests E2E
+
+### 2.3 Matrice de Couverture des Vulnérabilités
+
+| Catégorie OWASP | Type Vulnérabilité | Fichier | Fonction/Route | Présent |
+|-----------------|-------------------|---------|----------------|----------|
+| **A03:2021** | Cross-Site Scripting (XSS) | views.py | /profile, /search | ✅ |
+| **A03:2021** | Command Injection | views.py | /admin | ✅ |
+| **A03:2021** | Command Injection | helpers.py | execute_command() | ✅ |
+| **A03:2021** | OS Command Injection | helpers.py | run_shell_command() | ✅ |
+| **A03:2021** | Code Injection | helpers.py | calculate() | ✅ |
+| **A08:2021** | Insecure Deserialization | helpers.py | deserialize_data() | ✅ |
+| **A01:2021** | Path Traversal | helpers.py | read_file() | ✅ |
+| **A07:2021** | Hardcoded Credentials | helpers.py | backup_database() | ✅ |
+| **A03:2021** | XSS (DOM-based) | frontend.js | Multiples fonctions | ✅ |
+| **A07:2021** | Exposed Secrets | frontend.js | CONFIG | ✅ |
+| **A05:2021** | Security Misconfiguration | views.py | debug=True | ✅ |
+| **A02:2021** | Cryptographic Failures | frontend.js | HTTP non chiffré | ✅ |
+
+**Taux de couverture OWASP Top 10**: 6/10 catégories (60%)
+
+### 2.4 Frontières du Système
+
+**✅ INCLUS dans le périmètre:**
+- Code source Python/JavaScript vulnérable
+- Documentation des vulnérabilités (commentaires)
+- Exemples d'exploitation possibles
+- Structure de fichiers minimale
+
+**❌ EXCLUS du périmètre:**
+- Infrastructure de déploiement
+- Base de données
+- Système d'authentification
+- Tests automatisés
+- Documentation de remédiation
+- Versions corrigées du code
+- API REST complète
+- Frontend complet (HTML/CSS)
+
+### 2.5 Dépendances Techniques
+
+| Dépendance | Version | Usage | Critique |
+|------------|---------|-------|----------|
+| Flask | Non spécifiée | Framework web | 🔴 OUI |
+| Python | 3.x (supposé) | Runtime | 🔴 OUI |
+| subprocess | stdlib | Command execution | 🟡 MOYEN |
+| pickle | stdlib | Serialization | 🟡 MOYEN |
+| os | stdlib | System calls | 🔴 OUI |
+
+**Note**: Aucun requirements.txt trouvé - dépendances à documenter
 
 ---
 
-## 📊 Statistiques du périmètre
-
-| Métrique | Valeur | Source |
-|----------|--------|--------|
-| **Fichiers Python** | 2 | Structure repository |
-| **Fichiers JavaScript** | 1 | Structure repository |
-| **Total lignes de code** | ~100 lignes | Estimation basée sur tailles |
-| **Vulnérabilités uniques** | 20 instances | Analyse complète |
-| **Catégories de vulnérabilités** | 7 types | Classification OWASP |
-| **Criticité moyenne** | Critique/Haute | Évaluation sécurité |
-
----
-
-**Prochaines sections:** 3. Exigences fonctionnelles, 4. Cas d'usage, 5. Exigences de sécurité
+**[SECTIONS 3-8 À SUIVRE]**
