@@ -113,78 +113,79 @@ ai-security-test/
 
 | ID | Exigence | Statut | Confiance | Source |
 |----|----------|--------|-----------|--------|
-| NFR-MAIN-001 | Code documenté avec commentaires explicatifs | ✅ RESPECTÉ | 🟢 95% | Code |
-| NFR-MAIN-002 | Structure modulaire (web/utils/static) | ✅ RESPECTÉ | 🟢 100% | Arborescence |
-| NFR-MAIN-003 | README avec instructions claires | ✅ RESPECTÉ | 🟢 100% | README.md |
+| NFR-MAIN-001 | Code documenté avec commentaires explicites | ✅ RESPECTÉ | 🟢 90% | Code |
+| NFR-MAIN-002 | Structure modulaire claire | ✅ RESPECTÉ | 🟢 85% | Arborescence |
 
 ---
 
-## 📖 SECTION 4 : USER STORIES
-**Confiance: 80% 🟢** | **Source: Déduction objectifs projet**
+## 👤 SECTION 4 : USER STORIES
+**Confiance: 85% 🟢** | **Source: Analyse code, déduction usage**
 
-### 4.1 Epic: Évaluation Plateforme AI Security
+### 4.1 Epic: Détection de Vulnérabilités XSS
 
-#### US-001: Tester Détection XSS
-**Confiance: 90% 🟢** | **Source: Analyse code web/views.py**
-
-```
-EN TANT QUE développeur de plateforme AI Security
-JE VEUX analyser le code contenant des vulnérabilités XSS
-AFIN DE vérifier que mon outil les détecte correctement
-```
-
-**Critères d'acceptation:**
-- ✅ La plateforme détecte le XSS dans /profile (template non échappé)
-- ✅ La plateforme détecte le XSS reflected dans /search
-- ✅ La plateforme identifie les lignes exactes des vulnérabilités
-- ✅ La plateforme propose des corrections appropriées
+#### US-001: Détection XSS Stored (Route /profile)
+**En tant que** plateforme AI de code review  
+**Je veux** détecter les vulnérabilités XSS Stored dans les templates Flask  
+**Afin de** identifier les risques d'injection de scripts malveillants persistants
 
 **Priorité**: 🔴 CRITIQUE  
-**Effort estimé**: N/A (test)  
-**Source**: web/views.py L8-31
+**Confiance**: 🟢 95%  
+**Source**: web/views.py L8-23  
+**Trace**: OBJ-001, OBJ-002
 
-#### US-002: Tester Détection Command Injection
-**Confiance: 90% 🟢** | **Source: Analyse code utils/helpers.py**
+**Critères d'acceptation**:
+- ✅ Identifier l'absence d'échappement dans `render_template_string()`
+- ✅ Détecter l'interpolation directe de `user_data` sans validation
+- ✅ Signaler la sévérité comme HAUTE/CRITIQUE
+- ✅ Fournir la ligne exacte du code vulnérable
 
-```
-EN TANT QUE développeur de plateforme AI Security
-JE VEUX analyser du code avec des injections de commandes
-AFIN DE valider la détection de ce type de vulnérabilité
-```
-
-**Critères d'acceptation:**
-- ✅ Détection de os.system() avec input non validé
-- ✅ Détection de subprocess avec shell=True
-- ✅ Identification du niveau de sévérité (CRITIQUE)
-- ✅ Suggestions de remédiation (subprocess sans shell, validation)
+#### US-002: Détection XSS Reflected (Route /search)
+**En tant que** plateforme AI de code review  
+**Je veux** détecter les vulnérabilités XSS Reflected dans les réponses HTTP  
+**Afin de** identifier les risques d'injection via paramètres URL
 
 **Priorité**: 🔴 CRITIQUE  
-**Source**: utils/helpers.py L8-19, web/views.py L33-42
+**Confiance**: 🟢 95%  
+**Source**: web/views.py L25-31  
+**Trace**: OBJ-001, OBJ-002
+
+**Critères d'acceptation**:
+- ✅ Identifier l'absence de validation sur `request.args.get()`
+- ✅ Détecter l'insertion directe dans HTML sans échappement
+- ✅ Signaler le vecteur d'attaque (paramètre GET)
+
+### 4.2 Epic: Détection Command Injection
+
+#### US-003: Détection Command Injection (Route /admin)
+**En tant que** plateforme AI de code review  
+**Je veux** détecter l'utilisation dangereuse de `os.system()` avec input utilisateur  
+**Afin de** prévenir l'exécution de commandes système arbitraires
+
+**Priorité**: 🔴 CRITIQUE  
+**Confiance**: 🟢 100%  
+**Source**: web/views.py L33-42  
+**Trace**: OBJ-001, OBJ-002, NFR-SEC-003
+
+**Critères d'acceptation**:
+- ✅ Identifier `os.system()` avec concaténation d'input utilisateur
+- ✅ Détecter l'absence de validation/sanitization
+- ✅ Proposer des alternatives sécurisées (subprocess avec shell=False)
+
+### 4.3 Epic: Détection Mauvaises Configurations
+
+#### US-004: Détection Debug Mode en Production
+**En tant que** plateforme AI de code review  
+**Je veux** détecter l'activation du mode debug Flask  
+**Afin de** prévenir l'exposition d'informations sensibles
+
+**Priorité**: 🟡 HAUTE  
+**Confiance**: 🟢 100%  
+**Source**: web/views.py L45-46  
+**Trace**: OBJ-002, NFR-SEC-005
+
+**Critères d'acceptation**:
+- ✅ Identifier `app.run(debug=True)`
+- ✅ Signaler le risque d'exposition du debugger Werkzeug
+- ✅ Recommander debug=False pour production
 
 ---
-
-## 📋 LISTE DE VALIDATION PRIORITAIRE
-
-### ✅ Éléments Validés (Confiance 🟢)
-1. Structure du repository
-2. Présence des 3 modules (web, utils, static)
-3. Types de vulnérabilités implémentées
-4. Mapping OWASP Top 10
-
-### 🟡 Éléments à Valider (Confiance 🟡/⚪)
-1. **HAUTE PRIORITÉ**: Objectifs exacts du projet (interviewer le propriétaire)
-2. **HAUTE PRIORITÉ**: Critères de succès pour les tests AI
-3. **MOYENNE**: Exigences de performance
-4. **BASSE**: Roadmap futures vulnérabilités
-
-### ❌ Éléments Manquants
-1. Tests unitaires pour valider les vulnérabilités
-2. Documentation des scénarios d'exploitation
-3. Métriques de couverture OWASP
-4. Guide d'utilisation pour testeurs
-
----
-
-**FIN DU DOCUMENT**  
-*Dernière mise à jour: 2025*  
-*Version: 1.0 DRAFT*
