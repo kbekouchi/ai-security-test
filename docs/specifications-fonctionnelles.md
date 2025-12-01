@@ -121,38 +121,105 @@ ai-security-test/
 - ❌ Sanitization
 
 #### 2.2.3 Module FRONTEND (static/js/frontend.js)
-**Confiance: 95% 🟢** | **Source: static/js/frontend.js**
+**Confiance: 90% 🟢** | **Source: static/js/frontend.js**
 
-| Fonction | Vulnérabilité | Type OWASP | Ligne |
-|----------|---------------|------------|-------|
-| `displayUserInput()` | XSS via innerHTML | A03:2021 Injection | L5-7 |
-| `loadUserData()` | XSS via document.write() | A03:2021 Injection | L10-13 |
-| `executeUserScript()` | eval() dangereux | A03:2021 Injection | L16-18 |
-| `updateProfile()` | XSS via setAttribute + outerHTML | A03:2021 Injection | L21-29 |
-| `CONFIG` | Secrets hardcodés (API keys) | A07:2021 Auth Failures | L32-36 |
-| `sendAnalytics()` | Transmission HTTP non sécurisée | A02:2021 Crypto Failures | L39-47 |
+| Élément | Vulnérabilité | Type | Ligne |
+|---------|---------------|------|-------|
+| **API Key hardcodée** | Secret exposé dans code | A05:2021 Security Misconfig | L3 |
+| **innerHTML dynamique** | DOM-based XSS | A03:2021 Injection | L10 |
+| **eval() sur input** | Code Injection JavaScript | A03:2021 Injection | L15 |
 
 **Périmètre IN:**
-- ✅ 5 fonctions JavaScript vulnérables
-- ✅ Manipulation DOM non sécurisée
-- ✅ Secrets exposés côté client
-- ✅ Communication HTTP non chiffrée
+- ✅ Code JavaScript client-side
+- ✅ Manipulation DOM vulnérable
+- ✅ Secrets exposés
 
 **Périmètre OUT:**
-- ❌ Framework frontend (React/Vue)
+- ❌ Framework frontend moderne
+- ❌ Gestion sécurisée des secrets
 - ❌ Content Security Policy
-- ❌ Validation côté client
-
-### 2.3 Matrice de Couverture OWASP
-
-| OWASP Top 10 2021 | Couvert | Fichiers Concernés | Nb Vulnérabilités |
-|-------------------|---------|-------------------|------------------|
-| A01 - Broken Access Control | ✅ | helpers.py | 1 |
-| A02 - Cryptographic Failures | ✅ | frontend.js | 1 |
-| A03 - Injection | ✅ | views.py, helpers.py, frontend.js | 11 |
-| A07 - Auth Failures | ✅ | helpers.py, frontend.js | 2 |
-| A08 - Data Integrity Failures | ✅ | helpers.py | 1 |
-| A05 - Security Misconfiguration | ✅ | views.py | 1 |
-| **TOTAL** | **6/10** | **3 fichiers** | **17 vulnérabilités** |
 
 ---
+
+## ⚙️ SECTION 3 : EXIGENCES NON-FONCTIONNELLES
+**Confiance: 70% 🟡** | **Source: Déduction basée sur usage prévu**
+
+### 3.1 Performance
+
+| ID | Exigence | Valeur Cible | Priorité |
+|----|----------|--------------|----------|
+| NFR-PERF-001 | Temps de réponse routes HTTP | < 1s | 🟢 BASSE |
+| NFR-PERF-002 | Capacité à gérer tests concurrents | 10 requêtes/s | 🟢 BASSE |
+
+**Justification**: En tant que repo de test, la performance n'est pas critique.
+
+### 3.2 Sécurité (Inversée)
+
+⚠️ **ATTENTION**: Ce repository est INTENTIONNELLEMENT vulnérable.
+
+| ID | Anti-Exigence | Statut | Source |
+|----|---------------|--------|--------|
+| NFR-SEC-001 | ❌ Aucune validation des inputs | REQUIS | Objectif projet |
+| NFR-SEC-002 | ❌ Pas de sanitization | REQUIS | Objectif projet |
+| NFR-SEC-003 | ❌ Secrets en clair acceptés | REQUIS | Objectif projet |
+| NFR-SEC-004 | ❌ Debug mode en production | REQUIS | web/views.py L46 |
+
+### 3.3 Maintenabilité
+
+| ID | Exigence | Description | Priorité |
+|----|----------|-------------|----------|
+| NFR-MAINT-001 | Documentation des vulnérabilités | Chaque vulnérabilité doit être commentée | 🟡 HAUTE |
+| NFR-MAINT-002 | Code lisible | Vulnérabilités facilement identifiables | 🟡 HAUTE |
+| NFR-MAINT-003 | Versioning Git | Historique clair des modifications | 🟡 HAUTE |
+
+---
+
+## 📖 SECTION 4 : USER STORIES
+**Confiance: 85% 🟢** | **Source: Analyse besoins utilisateurs**
+
+### 4.1 Développeur de Plateforme AI
+
+**US-001**: Tester la détection XSS  
+**En tant que** développeur AI Platform  
+**Je veux** analyser le code avec des XSS  
+**Afin de** valider que mon outil détecte correctement les failles XSS  
+**Critères d'acceptation**:  
+- ✅ Le repo contient au moins 2 types de XSS (stored/reflected/DOM)  
+- ✅ Les vulnérabilités sont réalistes  
+- ✅ Le code est exécutable  
+**Priorité**: 🔴 CRITIQUE | **Source**: Objectif principal projet
+
+**US-002**: Évaluer la détection Command Injection  
+**En tant que** développeur AI Platform  
+**Je veux** tester mon outil sur des command injections  
+**Afin de** mesurer le taux de détection  
+**Critères d'acceptation**:  
+- ✅ Présence de os.system() avec input non validé  
+- ✅ Présence de subprocess avec shell=True  
+- ✅ Contextes d'exploitation variés  
+**Priorité**: 🔴 CRITIQUE | **Source**: utils/helpers.py
+
+**US-003**: Benchmark OWASP Top 10  
+**En tant que** développeur AI Platform  
+**Je veux** un repo couvrant OWASP Top 10  
+**Afin de** avoir un benchmark complet  
+**Critères d'acceptation**:  
+- ✅ Au moins 5 catégories OWASP couvertes  
+- ✅ Documentation des types de vulnérabilités  
+**Priorité**: 🟡 HAUTE | **Source**: README.md
+
+### 4.2 Security Researcher
+
+**US-004**: Valider la pertinence des vulnérabilités  
+**En tant que** security researcher  
+**Je veux** auditer le code vulnérable  
+**Afin de** confirmer que les vulnérabilités sont réalistes  
+**Critères d'acceptation**:  
+- ✅ Code reflète des erreurs réelles  
+- ✅ Vulnérabilités exploitables  
+- ✅ Pas de faux positifs intentionnels  
+**Priorité**: 🟡 HAUTE | **Source**: Déduction
+
+---
+
+*Document en cours de rédaction - Sections 5 à 8 à compléter*
