@@ -85,124 +85,106 @@ ai-security-test/
 | **Route /admin** | Panel administration | Command Injection via os.system() | L33-42 |
 | **Configuration Flask** | Démarrage app | Debug mode activé en production | L45-46 |
 
-**Périmètre IN:**
-- ✅ 3 routes HTTP vulnérables
-- ✅ Gestion paramètres GET
-- ✅ Rendu templates dynamiques
-- ✅ Exécution commandes système
-
-**Périmètre OUT:**
-- ❌ Authentification utilisateurs
-- ❌ Base de données
-- ❌ API REST complète
-- ❌ Tests unitaires
-
-#### 2.2.2 Module UTILS (utils/helpers.py)
-**Confiance: 95% 🟢** | **Source: utils/helpers.py**
-
-| Fonction | Vulnérabilité | Type OWASP | Ligne |
-|----------|---------------|------------|-------|
-| `execute_command()` | Command Injection via os.system | A03:2021 Injection | L8-12 |
-| `run_shell_command()` | shell=True avec input non validé | A03:2021 Injection | L14-19 |
-| `deserialize_data()` | pickle.loads non sécurisé | A08:2021 Deserialization | L21-25 |
-| `read_file()` | Path Traversal | A01:2021 Broken Access | L27-32 |
-| `backup_database()` | Credentials hardcodés | A07:2021 Auth Failures | L34-38 |
-| `import_module_dynamic()` | Import dynamique non sécurisé | A03:2021 Injection | L41-43 |
-| `calculate()` | eval() sur input utilisateur | A03:2021 Injection | L46-48 |
-
-**Périmètre IN:**
-- ✅ 7 fonctions utilitaires vulnérables
-- ✅ Couverture multiples types de vulnérabilités
-- ✅ Exemples réalistes d'erreurs courantes
-
-**Périmètre OUT:**
-- ❌ Versions sécurisées des fonctions
-- ❌ Validation des inputs
-- ❌ Sanitization
-
-#### 2.2.3 Module FRONTEND (static/js/frontend.js)
-**Confiance: 90% 🟢** | **Source: static/js/frontend.js**
-
-| Élément | Vulnérabilité | Type OWASP | Ligne |
-|---------|---------------|------------|-------|
-| **API Key hardcodée** | Secrets exposés dans code client | A02:2021 Cryptographic Failures | L3 |
-| **innerHTML dynamique** | DOM-based XSS | A03:2021 Injection | L7-9 |
-| **eval() sur données externes** | Code Injection côté client | A03:2021 Injection | L11 |
-
-**Périmètre IN:**
-- ✅ Code JavaScript vulnérable
-- ✅ Secrets exposés
-- ✅ Manipulation DOM non sécurisée
-
-**Périmètre OUT:**
-- ❌ Framework frontend moderne
-- ❌ Content Security Policy
-- ❌ Gestion sécurisée des secrets
-
-### 2.3 Synthèse de Couverture
-
-**Total vulnérabilités identifiées**: 13  
-**Types OWASP couverts**: 4/10
-
 ---
 
 ## ⚙️ SECTION 3 : EXIGENCES NON-FONCTIONNELLES
-**Confiance: 85% 🟢** | **Source: Déduction contexte test**
+**Confiance: 70% 🟡** | **Source: Déduction contexte test**
 
 ### 3.1 Performance
 
-| ID | Exigence | Critère | Priorité |
-|----|----------|---------|----------|
-| NFR-PERF-001 | Temps de réponse routes HTTP | < 500ms | 🟢 BASSE |
-| NFR-PERF-002 | Charge supportée | N/A (repo test) | ⚪ N/A |
+| ID | Exigence | Priorité | Confiance | Source |
+|----|----------|----------|-----------|--------|
+| NFR-PERF-001 | Temps de réponse < 2s pour toutes les routes | 🟢 BASSE | ⚪ 50% | Déduction |
+| NFR-PERF-002 | Support de 10 requêtes simultanées minimum | 🟢 BASSE | ⚪ 50% | Déduction |
 
-### 3.2 Sécurité
+**Note**: Ce repository étant un environnement de test, les performances ne sont pas critiques.
 
-| ID | Exigence | Critère | Priorité |
-|----|----------|---------|----------|
-| NFR-SEC-001 | Isolation environnement | Jamais en production | 🔴 CRITIQUE |
-| NFR-SEC-002 | Documentation vulnérabilités | Toutes documentées | 🔴 CRITIQUE |
-| NFR-SEC-003 | Avertissements visibles | README + commentaires code | 🟡 HAUTE |
+### 3.2 Sécurité (Intentionnellement NON Respectées)
+
+| ID | Exigence | Statut | Confiance | Source |
+|----|----------|--------|-----------|--------|
+| NFR-SEC-001 | Validation des inputs utilisateur | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
+| NFR-SEC-002 | Échappement des outputs dans templates | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
+| NFR-SEC-003 | Pas d'exécution commandes shell avec input user | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
+| NFR-SEC-004 | Credentials en variables d'environnement | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
+| NFR-SEC-005 | Mode debug désactivé en production | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
 
 ### 3.3 Maintenabilité
 
-| ID | Exigence | Critère | Priorité |
-|----|----------|---------|----------|
-| NFR-MAIN-001 | Structure code claire | Séparation modules | 🟡 HAUTE |
-| NFR-MAIN-002 | Commentaires explicites | Chaque vulnérabilité commentée | 🟡 HAUTE |
-| NFR-MAIN-003 | Versioning | Git + tags | 🟢 MOYENNE |
+| ID | Exigence | Statut | Confiance | Source |
+|----|----------|--------|-----------|--------|
+| NFR-MAIN-001 | Code documenté avec commentaires explicatifs | ✅ RESPECTÉ | 🟢 95% | Code |
+| NFR-MAIN-002 | Structure modulaire (web/utils/static) | ✅ RESPECTÉ | 🟢 100% | Arborescence |
+| NFR-MAIN-003 | README avec instructions claires | ✅ RESPECTÉ | 🟢 100% | README.md |
 
 ---
 
 ## 📖 SECTION 4 : USER STORIES
-**Confiance: 80% 🟡** | **Source: Déduction usage**
+**Confiance: 80% 🟢** | **Source: Déduction objectifs projet**
 
-### US-001: Tester la détection XSS
-**En tant que** développeur de plateforme AI  
-**Je veux** analyser les routes /profile et /search  
-**Afin de** vérifier que mon outil détecte les XSS reflected et stored
+### 4.1 Epic: Évaluation Plateforme AI Security
+
+#### US-001: Tester Détection XSS
+**Confiance: 90% 🟢** | **Source: Analyse code web/views.py**
+
+```
+EN TANT QUE développeur de plateforme AI Security
+JE VEUX analyser le code contenant des vulnérabilités XSS
+AFIN DE vérifier que mon outil les détecte correctement
+```
 
 **Critères d'acceptation:**
-- ✅ Détection XSS dans template Jinja2 non échappé
-- ✅ Détection XSS dans réponse HTML directe
-- ✅ Identification ligne précise
+- ✅ La plateforme détecte le XSS dans /profile (template non échappé)
+- ✅ La plateforme détecte le XSS reflected dans /search
+- ✅ La plateforme identifie les lignes exactes des vulnérabilités
+- ✅ La plateforme propose des corrections appropriées
 
 **Priorité**: 🔴 CRITIQUE  
+**Effort estimé**: N/A (test)  
 **Source**: web/views.py L8-31
 
-### US-002: Tester la détection Command Injection
-**En tant que** security researcher  
-**Je veux** analyser les fonctions execute_command et run_shell_command  
-**Afin de** valider la détection d'injection de commandes
+#### US-002: Tester Détection Command Injection
+**Confiance: 90% 🟢** | **Source: Analyse code utils/helpers.py**
+
+```
+EN TANT QUE développeur de plateforme AI Security
+JE VEUX analyser du code avec des injections de commandes
+AFIN DE valider la détection de ce type de vulnérabilité
+```
 
 **Critères d'acceptation:**
-- ✅ Détection os.system() avec input non validé
-- ✅ Détection subprocess avec shell=True
-- ✅ Suggestion de remediation
+- ✅ Détection de os.system() avec input non validé
+- ✅ Détection de subprocess avec shell=True
+- ✅ Identification du niveau de sévérité (CRITIQUE)
+- ✅ Suggestions de remédiation (subprocess sans shell, validation)
 
 **Priorité**: 🔴 CRITIQUE  
-**Source**: utils/helpers.py L8-19
+**Source**: utils/helpers.py L8-19, web/views.py L33-42
 
 ---
 
-*[Suite des sections à venir: Section 5 - Règles Métier, Section 6 - Matrices de Traçabilité, Section 7 - Annexes, Section 8 - Liste de Validation]*
+## 📋 LISTE DE VALIDATION PRIORITAIRE
+
+### ✅ Éléments Validés (Confiance 🟢)
+1. Structure du repository
+2. Présence des 3 modules (web, utils, static)
+3. Types de vulnérabilités implémentées
+4. Mapping OWASP Top 10
+
+### 🟡 Éléments à Valider (Confiance 🟡/⚪)
+1. **HAUTE PRIORITÉ**: Objectifs exacts du projet (interviewer le propriétaire)
+2. **HAUTE PRIORITÉ**: Critères de succès pour les tests AI
+3. **MOYENNE**: Exigences de performance
+4. **BASSE**: Roadmap futures vulnérabilités
+
+### ❌ Éléments Manquants
+1. Tests unitaires pour valider les vulnérabilités
+2. Documentation des scénarios d'exploitation
+3. Métriques de couverture OWASP
+4. Guide d'utilisation pour testeurs
+
+---
+
+**FIN DU DOCUMENT**  
+*Dernière mise à jour: 2025*  
+*Version: 1.0 DRAFT*
