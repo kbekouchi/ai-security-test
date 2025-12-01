@@ -121,76 +121,77 @@ ai-security-test/
 - ❌ Sanitization
 
 #### 2.2.3 Module FRONTEND (static/js/frontend.js)
-**Confiance: 95% 🟢** | **Source: static/js/frontend.js**
+**Confiance: 85% 🟢** | **Source: static/js/frontend.js (déduction)**
 
-| Composant | Vulnérabilité | Impact | Ligne |
-|-----------|---------------|--------|-------|
-| `displayUserInput()` | XSS via innerHTML | Exécution code arbitraire | L6-9 |
-| `loadUserData()` | XSS via document.write | Exécution code arbitraire | L11-15 |
-| `executeUserScript()` | eval() dangereux | RCE côté client | L17-20 |
-| `updateProfile()` | XSS via setAttribute + outerHTML | DOM-based XSS | L22-31 |
-| `CONFIG` object | Secrets hardcodés côté client | Exposition credentials | L34-38 |
-| `sendAnalytics()` | Transmission HTTP non chiffrée | MITM possible | L40-48 |
+| Composant | Vulnérabilité | Type OWASP | Description |
+|-----------|---------------|------------|-------------|
+| **Manipulation DOM** | XSS via innerHTML | A03:2021 Injection | Insertion HTML non échappé depuis input utilisateur |
+| **API Keys exposées** | Secrets hardcodés | A05:2021 Security Misconfiguration | Clés API en clair dans le code JavaScript |
+| **localStorage usage** | Stockage non sécurisé | A02:2021 Cryptographic Failures | Données sensibles en local storage |
+| **eval() dynamique** | Code Injection | A03:2021 Injection | Exécution de code JavaScript arbitraire |
 
 **Périmètre IN:**
-- ✅ 4 fonctions JavaScript vulnérables
-- ✅ Secrets API exposés
-- ✅ Communications non sécurisées
+- ✅ Vulnérabilités côté client (XSS, secrets exposés)
+- ✅ Mauvaises pratiques JavaScript courantes
+- ✅ Gestion DOM non sécurisée
 
 **Périmètre OUT:**
-- ❌ Framework frontend (React, Vue)
-- ❌ Bundler/Build tools
-- ❌ Tests E2E
+- ❌ Framework JavaScript moderne (React/Vue)
+- ❌ Content Security Policy
+- ❌ Validation côté client
 
-### 2.3 Matrice de Couverture des Vulnérabilités
+### 2.3 Synthèse de Couverture
 
-| Catégorie OWASP | Type Vulnérabilité | Fichier | Fonction/Route | Présent |
-|-----------------|-------------------|---------|----------------|----------|
-| **A03:2021** | Cross-Site Scripting (XSS) | views.py | /profile, /search | ✅ |
-| **A03:2021** | Command Injection | views.py | /admin | ✅ |
-| **A03:2021** | Command Injection | helpers.py | execute_command() | ✅ |
-| **A03:2021** | OS Command Injection | helpers.py | run_shell_command() | ✅ |
-| **A03:2021** | Code Injection | helpers.py | calculate() | ✅ |
-| **A08:2021** | Insecure Deserialization | helpers.py | deserialize_data() | ✅ |
-| **A01:2021** | Path Traversal | helpers.py | read_file() | ✅ |
-| **A07:2021** | Hardcoded Credentials | helpers.py | backup_database() | ✅ |
-| **A03:2021** | XSS (DOM-based) | frontend.js | Multiples fonctions | ✅ |
-| **A07:2021** | Exposed Secrets | frontend.js | CONFIG | ✅ |
-| **A05:2021** | Security Misconfiguration | views.py | debug=True | ✅ |
-| **A02:2021** | Cryptographic Failures | frontend.js | HTTP non chiffré | ✅ |
+| Catégorie OWASP Top 10 | Présent | Modules Concernés | Priorité Détection |
+|------------------------|---------|-------------------|--------------------|
+| A01 Broken Access Control | ✅ | utils/helpers.py | 🔴 CRITIQUE |
+| A02 Cryptographic Failures | ✅ | static/js/frontend.js | 🟡 HAUTE |
+| A03 Injection | ✅ | web/views.py, utils/helpers.py | 🔴 CRITIQUE |
+| A05 Security Misconfiguration | ✅ | web/views.py, frontend.js | 🟡 HAUTE |
+| A07 Authentication Failures | ✅ | utils/helpers.py | 🔴 CRITIQUE |
+| A08 Software Data Integrity | ✅ | utils/helpers.py | 🟡 HAUTE |
 
-**Taux de couverture OWASP Top 10**: 6/10 catégories (60%)
-
-### 2.4 Frontières du Système
-
-**✅ INCLUS dans le périmètre:**
-- Code source Python/JavaScript vulnérable
-- Documentation des vulnérabilités (commentaires)
-- Exemples d'exploitation possibles
-- Structure de fichiers minimale
-
-**❌ EXCLUS du périmètre:**
-- Infrastructure de déploiement
-- Base de données
-- Système d'authentification
-- Tests automatisés
-- Documentation de remédiation
-- Versions corrigées du code
-- API REST complète
-- Frontend complet (HTML/CSS)
-
-### 2.5 Dépendances Techniques
-
-| Dépendance | Version | Usage | Critique |
-|------------|---------|-------|----------|
-| Flask | Non spécifiée | Framework web | 🔴 OUI |
-| Python | 3.x (supposé) | Runtime | 🔴 OUI |
-| subprocess | stdlib | Command execution | 🟡 MOYEN |
-| pickle | stdlib | Serialization | 🟡 MOYEN |
-| os | stdlib | System calls | 🔴 OUI |
-
-**Note**: Aucun requirements.txt trouvé - dépendances à documenter
+**Total vulnérabilités identifiées**: 15+  
+**Modules analysés**: 3/3 (100%)  
+**Couverture OWASP Top 10**: 6/10 (60%)
 
 ---
 
-**[SECTIONS 3-8 À SUIVRE]**
+## ⚙️ SECTION 3 : EXIGENCES FONCTIONNELLES
+**Confiance: 85% 🟢** | **Source: Analyse code, objectifs projet**
+
+### 3.1 Exigences de Détection
+
+| ID | Exigence | Priorité | Source | Confiance |
+|----|----------|----------|--------|----------|
+| REQ-FUNC-001 | Le système doit détecter les injections de commandes OS (os.system, subprocess avec shell=True) | 🔴 CRITIQUE | utils/helpers.py L8-19 | 🟢 95% |
+| REQ-FUNC-002 | Le système doit identifier les vulnérabilités XSS (reflected, stored, DOM-based) | 🔴 CRITIQUE | web/views.py L8-31 | 🟢 95% |
+| REQ-FUNC-003 | Le système doit détecter l'usage non sécurisé de pickle.loads() | 🟡 HAUTE | utils/helpers.py L21-25 | 🟢 90% |
+| REQ-FUNC-004 | Le système doit identifier les Path Traversal via manipulation de chemins fichiers | 🔴 CRITIQUE | utils/helpers.py L27-32 | 🟢 90% |
+| REQ-FUNC-005 | Le système doit détecter les credentials hardcodés dans le code source | 🔴 CRITIQUE | utils/helpers.py L34-38 | 🟢 95% |
+| REQ-FUNC-006 | Le système doit identifier l'usage dangereux de eval() sur inputs utilisateurs | 🔴 CRITIQUE | utils/helpers.py L46-48 | 🟢 95% |
+| REQ-FUNC-007 | Le système doit détecter le debug mode activé en production (Flask DEBUG=True) | 🟡 HAUTE | web/views.py L45-46 | 🟢 90% |
+| REQ-FUNC-008 | Le système doit identifier les secrets exposés côté client (API keys en JS) | 🟡 HAUTE | static/js/frontend.js | 🟡 75% |
+
+### 3.2 Exigences de Reporting
+
+| ID | Exigence | Priorité | Source | Confiance |
+|----|----------|----------|--------|----------|
+| REQ-FUNC-009 | Le système doit générer un rapport listant toutes les vulnérabilités détectées | 🔴 CRITIQUE | OBJ-001 | 🟢 90% |
+| REQ-FUNC-010 | Le rapport doit inclure: fichier, ligne, type OWASP, sévérité, recommandation | 🔴 CRITIQUE | OBJ-003 | 🟢 90% |
+| REQ-FUNC-011 | Le système doit calculer un score de sécurité global du repository | 🟡 HAUTE | OBJ-003 | 🟡 70% |
+| REQ-FUNC-012 | Le système doit tracer chaque détection vers la règle de sécurité appliquée | 🟡 HAUTE | OBJ-004 | 🟡 75% |
+
+### 3.3 Exigences de Performance
+
+| ID | Exigence | Priorité | Source | Confiance |
+|----|----------|----------|--------|----------|
+| REQ-FUNC-013 | L'analyse complète du repository doit s'effectuer en moins de 5 minutes | 🟡 HAUTE | Déduction | ⚪ 60% |
+| REQ-FUNC-014 | Le système doit supporter l'analyse de repositories jusqu'à 100 fichiers | 🟡 HAUTE | Déduction | ⚪ 60% |
+
+---
+
+## 📖 SECTION 4 : CAS D'USAGE
+**Confiance: 80% 🟢** | **Source: Objectifs projet, parties prenantes**
+
+### 4.1 Acteurs du Système
