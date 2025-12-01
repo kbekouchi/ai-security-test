@@ -119,109 +119,127 @@ Le projet `ai-security-test` est un repository de test créé spécifiquement po
 **Confiance:** 🟢 ÉLEVÉE
 
 **REQ-FUNC-001** : Exposition XSS via innerHTML  
-**Description:** La fonction `displayUserInput()` doit permettre l'injection de code HTML/JavaScript via innerHTML sans sanitization  
-**Priorité:** HAUTE  
-**Traçabilité:** frontend.js:L1-L5
+**Description:** La fonction `displayUserInput()` doit injecter directement du contenu utilisateur via `innerHTML` sans sanitization  
+**Trace:** `static/js/frontend.js` ligne displayUserInput()  
+**Priorité:** P1 (Critique pour test)
 
-**REQ-FUNC-002** : XSS via document.write  
-**Description:** La fonction `loadUserData()` doit utiliser document.write pour injecter du contenu non échappé  
-**Priorité:** HAUTE  
-**Traçabilité:** frontend.js:L7-L11
+**REQ-FUNC-002** : Exposition XSS via document.write  
+**Description:** La fonction `loadUserData()` doit utiliser `document.write()` avec données non validées  
+**Trace:** `static/js/frontend.js` ligne loadUserData()  
+**Priorité:** P1
 
-**REQ-FUNC-003** : Exécution eval() dangereuse  
-**Description:** La fonction `executeUserScript()` doit permettre l'exécution de code JavaScript arbitraire via eval()  
-**Priorité:** CRITIQUE  
-**Traçabilité:** frontend.js:L13-L17
+**REQ-FUNC-003** : Utilisation dangereuse de eval()  
+**Description:** La fonction `executeUserScript()` doit exécuter du code via `eval()` sur input utilisateur  
+**Trace:** `static/js/frontend.js` ligne executeUserScript()  
+**Priorité:** P1
 
-### 3.2 Exigences Command Injection
+### 3.2 Exigences de Command Injection
 **Source:** Analyse helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
 **REQ-FUNC-004** : Command Injection via os.system  
-**Description:** La fonction `execute_command()` doit permettre l'injection de commandes système via os.system  
-**Priorité:** CRITIQUE  
-**Traçabilité:** helpers.py:L5-L8
+**Description:** La fonction `execute_command()` doit utiliser `os.system()` avec input non sanitizé  
+**Trace:** `utils/helpers.py` ligne execute_command()  
+**Priorité:** P1
 
-**REQ-FUNC-005** : Shell Injection via subprocess  
-**Description:** La fonction `run_shell_command()` doit utiliser subprocess.run avec shell=True sans validation  
-**Priorité:** CRITIQUE  
-**Traçabilité:** helpers.py:L10-L13
+**REQ-FUNC-005** : Command Injection via subprocess  
+**Description:** La fonction `run_shell_command()` doit utiliser `subprocess.run()` avec `shell=True`  
+**Trace:** `utils/helpers.py` ligne run_shell_command()  
+**Priorité:** P1
 
-### 3.3 Exigences Désérialisation
+### 3.3 Exigences de Désérialisation Dangereuse
 **Source:** Analyse helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
 **REQ-FUNC-006** : Insecure Deserialization  
-**Description:** La fonction `deserialize_data()` doit utiliser pickle.loads sur des données non fiables  
-**Priorité:** CRITIQUE  
-**Traçabilité:** helpers.py:L15-L18
+**Description:** La fonction `deserialize_data()` doit utiliser `pickle.loads()` sur données non fiables  
+**Trace:** `utils/helpers.py` ligne deserialize_data()  
+**Priorité:** P1
+
+### 3.4 Exigences de Path Traversal
+**Source:** Analyse helpers.py  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-007** : Path Traversal  
+**Description:** La fonction `read_file()` doit permettre accès fichiers via chemins non validés  
+**Trace:** `utils/helpers.py` ligne read_file()  
+**Priorité:** P2
+
+### 3.5 Exigences de Secrets Hardcodés
+**Source:** Analyse frontend.js et helpers.py  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-008** : Hardcoded API Keys (Frontend)  
+**Description:** La fonction `sendAnalytics()` doit contenir des clés API en clair dans le code JavaScript  
+**Trace:** `static/js/frontend.js` ligne sendAnalytics()  
+**Priorité:** P2
+
+**REQ-FUNC-009** : Hardcoded Credentials (Backend)  
+**Description:** La fonction `backup_database()` doit contenir identifiants BDD en clair  
+**Trace:** `utils/helpers.py` ligne backup_database()  
+**Priorité:** P2
 
 ---
 
 ## SECTION 4 : EXIGENCES NON-FONCTIONNELLES
 
-### 4.1 Exigences de Sécurité (Intentionnelles)
-**Source:** Objectif du repository de test  
+### 4.1 Exigences de Sécurité (Intentionnellement Non Respectées)
+**Source:** Contexte repository de test  
 **Confiance:** 🟢 ÉLEVÉE
 
-**REQ-NF-001** : Vulnérabilités Authentiques  
-**Description:** Les vulnérabilités doivent être réalistes et représentatives des failles courantes en production  
-**Critère:** Correspondance avec OWASP Top 10  
-**Priorité:** CRITIQUE
+**REQ-NF-001** : Absence de Validation d'Entrées  
+**Description:** Le système NE DOIT PAS valider les entrées utilisateur pour exposer les vulnérabilités  
+**Justification:** Permettre la détection par l'IA des failles de validation  
+**Priorité:** P1
 
-**REQ-NF-002** : Isolation Environnement  
-**Description:** Le repository ne doit jamais être déployé en production ou contenir de vraies données sensibles  
-**Critère:** Marquage clair "TEST ONLY" dans README  
-**Priorité:** CRITIQUE
+**REQ-NF-002** : Absence de Sanitization  
+**Description:** Aucune sanitization HTML/SQL/Shell ne doit être implémentée  
+**Justification:** Tester la capacité de l'IA à détecter les failles de sanitization  
+**Priorité:** P1
 
-**REQ-NF-003** : Documentation Vulnérabilités  
-**Description:** Chaque vulnérabilité doit être documentée avec son type, sa localisation et son impact  
-**Critère:** Commentaires dans le code ou fichier VULNERABILITIES.md  
-**Priorité:** HAUTE
+**REQ-NF-003** : Exposition de Secrets  
+**Description:** Les secrets doivent être hardcodés et visibles dans le code  
+**Justification:** Tester la détection de credentials exposés  
+**Priorité:** P2
 
 ### 4.2 Exigences de Maintenabilité
-**Source:** Contexte projet de test  
+**Source:** Bonnes pratiques repository de test  
 **Confiance:** 🟡 MOYENNE
 
-**REQ-NF-004** : Lisibilité du Code  
-**Description:** Le code doit rester lisible malgré les vulnérabilités pour faciliter la compréhension des testeurs  
-**Critère:** Fonctions courtes (<50 lignes), noms explicites  
-**Priorité:** MOYENNE
+**REQ-NF-004** : Documentation des Vulnérabilités  
+**Description:** Chaque vulnérabilité doit être documentée avec son type et son impact  
+**Justification:** Faciliter la validation des résultats de l'IA  
+**Priorité:** P2
 
-**REQ-NF-005** : Modularité  
-**Description:** Chaque type de vulnérabilité doit être isolé dans une fonction distincte  
-**Critère:** Une fonction = une vulnérabilité  
-**Priorité:** HAUTE
+**REQ-NF-005** : Code Lisible  
+**Description:** Le code vulnérable doit rester lisible et compréhensible  
+**Justification:** Permettre l'analyse manuelle et la validation  
+**Priorité:** P3
 
-**REQ-NF-006** : Évolutivité  
-**Description:** Possibilité d'ajouter facilement de nouvelles vulnérabilités sans impacter les existantes  
-**Critère:** Architecture modulaire, pas de dépendances croisées  
-**Priorité:** MOYENNE
+### 4.3 Exigences de Testabilité
+**Source:** Objectif du repository  
+**Confiance:** 🟡 MOYENNE
 
-### 4.3 Exigences de Performance
+**REQ-NF-006** : Reproductibilité  
+**Description:** Les vulnérabilités doivent être reproductibles de manière déterministe  
+**Justification:** Garantir des résultats de test cohérents  
+**Priorité:** P2
+
+**REQ-NF-007** : Isolation  
+**Description:** Le repository doit être isolé et ne jamais être déployé en production  
+**Justification:** Éviter tout risque réel de sécurité  
+**Priorité:** P1
+
+### 4.4 Exigences de Performance
 **Source:** Déduction contexte test  
 **Confiance:** 🟡 MOYENNE
 
-**REQ-NF-007** : Temps d'Analyse  
-**Description:** Le code doit pouvoir être analysé par l'AI en moins de 5 minutes  
-**Critère:** <1000 lignes de code total  
-**Priorité:** BASSE
+**REQ-NF-008** : Temps d'Analyse  
+**Description:** Le code doit permettre une analyse complète en moins de 5 minutes  
+**Justification:** Efficacité des tests de la plateforme AI  
+**Priorité:** P3
 
-**REQ-NF-008** : Légèreté Repository  
-**Description:** Le repository doit rester léger pour faciliter les clones et tests répétés  
-**Critère:** <10 MB total  
-**Priorité:** BASSE
-
-### 4.4 Exigences de Compatibilité
-**Source:** Technologies utilisées  
-**Confiance:** 🟢 ÉLEVÉE
-
-**REQ-NF-009** : Compatibilité Python  
-**Description:** Code Python compatible avec versions 3.8+  
-**Critère:** Pas de dépendances à des features Python 3.11+  
-**Priorité:** MOYENNE
-
-**REQ-NF-010** : Compatibilité JavaScript  
-**Description:** Code JavaScript compatible avec navigateurs modernes (ES6+)  
-**Critère:** Pas de features expérimentales  
-**Priorité:** MOYENNE
+**REQ-NF-009** : Taille Raisonnable  
+**Description:** Le repository doit rester de taille modérée (< 1 MB)  
+**Justification:** Faciliter le clonage et l'analyse rapide  
+**Priorité:** P3
