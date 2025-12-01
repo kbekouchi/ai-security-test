@@ -129,40 +129,35 @@ ai-security-test/
 | `loadUserData()` | XSS via document.write | A03:2021 Injection | L10-14 |
 | `executeUserScript()` | eval() dangereux | A03:2021 Injection | L16-19 |
 | `updateProfile()` | XSS via setAttribute + outerHTML | A03:2021 Injection | L21-30 |
-| `CONFIG` | Secrets hardcodés côté client | A02:2021 Crypto Failures | L33-37 |
-| `sendAnalytics()` | Transmission non sécurisée HTTP | A02:2021 Crypto Failures | L39-47 |
+| `CONFIG` object | Secrets hardcodés côté client | A02:2021 Cryptographic Failures | L33-37 |
+| `sendAnalytics()` | Transmission HTTP non sécurisée | A02:2021 Cryptographic Failures | L39-47 |
 
 **Secrets Exposés:**
-- 🔴 `apiKey`: ak_live_abcdefghijklmnopqrstuvwxyz123456
-- 🔴 `secretToken`: tok_secret_987654321abcdefgh
-- 🔴 `stripeKey`: pk_live_1234567890abcdefghijklmnop
+- `apiKey`: ak_live_abcdefghijklmnopqrstuvwxyz123456
+- `secretToken`: tok_secret_987654321abcdefgh
+- `stripeKey`: pk_live_1234567890abcdefghijklmnop
 
 **Périmètre IN:**
 - ✅ 6 fonctions JavaScript vulnérables
-- ✅ Secrets exposés côté client
 - ✅ Manipulation DOM non sécurisée
-- ✅ Communication HTTP non chiffrée
+- ✅ Secrets exposés côté client
+- ✅ Transmission HTTP non chiffrée
 
 **Périmètre OUT:**
 - ❌ Content Security Policy (CSP)
-- ❌ Sanitization des inputs
+- ❌ Validation côté client
+- ❌ HTTPS enforcement
 - ❌ Gestion sécurisée des secrets
 
-### 2.3 Cartographie des Vulnérabilités OWASP
+### 2.3 Synthèse Couverture OWASP Top 10
 
-| OWASP Top 10 2021 | Présent | Fichiers Concernés | Count |
-|-------------------|---------|-------------------|-------|
-| **A01 - Broken Access Control** | ✅ | utils/helpers.py | 1 |
-| **A02 - Cryptographic Failures** | ✅ | static/js/frontend.js | 2 |
-| **A03 - Injection** | ✅ | web/views.py, utils/helpers.py, frontend.js | 11 |
-| **A04 - Insecure Design** | ⚪ | N/A | 0 |
-| **A05 - Security Misconfiguration** | ✅ | web/views.py (debug mode) | 1 |
-| **A06 - Vulnerable Components** | ⚪ | N/A | 0 |
-| **A07 - Auth Failures** | ✅ | utils/helpers.py | 1 |
-| **A08 - Data Integrity Failures** | ✅ | utils/helpers.py (pickle) | 1 |
-| **A09 - Logging Failures** | ⚪ | N/A | 0 |
-| **A10 - SSRF** | ⚪ | N/A | 0 |
-
-**Couverture OWASP**: 6/10 catégories (60%)
+| OWASP 2021 | Présent | Fichiers Concernés |
+|------------|---------|--------------------|
+| A01 - Broken Access Control | ✅ | utils/helpers.py (Path Traversal) |
+| A02 - Cryptographic Failures | ✅ | frontend.js (Secrets exposés, HTTP) |
+| A03 - Injection | ✅ | Tous les fichiers (XSS, Command Injection, eval) |
+| A07 - Auth Failures | ✅ | utils/helpers.py (Credentials hardcodés) |
+| A08 - Software Data Integrity | ✅ | utils/helpers.py (Deserialization) |
+| A05 - Security Misconfiguration | ✅ | web/views.py (Debug mode) |
 
 ---
