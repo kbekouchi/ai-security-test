@@ -119,139 +119,129 @@ Le projet `ai-security-test` est un repository de test créé spécifiquement po
 **Confiance:** 🟢 ÉLEVÉE
 
 **REQ-FUNC-001** : Exposition XSS via innerHTML  
-**Description:** La fonction `displayUserInput()` doit accepter du contenu utilisateur non sanitizé et l'injecter directement via innerHTML  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-001  
-**Source:** `static/js/frontend.js:6`
+**Description:** La fonction `displayUserInput()` doit injecter directement du contenu utilisateur via innerHTML sans sanitization  
+**Traçabilité:** frontend.js:displayUserInput()  
+**Criticité:** Haute (vulnérabilité intentionnelle)
 
 **REQ-FUNC-002** : Exposition XSS via document.write  
-**Description:** La fonction `loadUserData()` doit utiliser document.write pour afficher des données utilisateur sans validation  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-001  
-**Source:** `static/js/frontend.js:11-12`
+**Description:** La fonction `loadUserData()` doit utiliser document.write avec données non échappées  
+**Traçabilité:** frontend.js:loadUserData()  
+**Criticité:** Haute
 
-**REQ-FUNC-003** : Exposition XSS via outerHTML  
-**Description:** La fonction `updateProfile()` doit permettre l'injection de contenu via outerHTML sans échappement  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-001  
-**Source:** `static/js/frontend.js:28-29`
+**REQ-FUNC-003** : Utilisation dangereuse de eval()  
+**Description:** La fonction `executeUserScript()` doit exécuter du code JavaScript arbitraire via eval()  
+**Traçabilité:** frontend.js:executeUserScript()  
+**Criticité:** Critique
 
 ### 3.2 Exigences de Command Injection
 **Source:** Analyse helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
-**REQ-FUNC-004** : Exécution commande système directe  
-**Description:** La fonction `execute_command()` doit exécuter des commandes utilisateur via os.system() sans validation  
-**Priorité:** CRITIQUE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-002  
-**Source:** `utils/helpers.py:8-11`
+**REQ-FUNC-004** : Command Injection via os.system  
+**Description:** La fonction `execute_command()` doit permettre l'injection de commandes via os.system  
+**Traçabilité:** helpers.py:execute_command()  
+**Criticité:** Critique
 
-**REQ-FUNC-005** : Subprocess avec shell=True  
-**Description:** La fonction `run_shell_command()` doit utiliser subprocess.run avec shell=True sur input utilisateur  
-**Priorité:** CRITIQUE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-002  
-**Source:** `utils/helpers.py:16-18`
+**REQ-FUNC-005** : Command Injection via subprocess  
+**Description:** La fonction `run_shell_command()` doit utiliser subprocess.run avec shell=True  
+**Traçabilité:** helpers.py:run_shell_command()  
+**Criticité:** Critique
 
-### 3.3 Exigences de Secrets Exposés
-**Source:** Analyse frontend.js  
-**Confiance:** 🟢 ÉLEVÉE
-
-**REQ-FUNC-006** : Clés API hardcodées côté client  
-**Description:** Le code doit contenir des clés API, tokens secrets et clés Stripe en clair dans le JavaScript  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-005  
-**Source:** `static/js/frontend.js:33-37`
-
-**REQ-FUNC-007** : Credentials en clair dans commandes  
-**Description:** La fonction `backup_database()` doit contenir username/password MySQL en clair dans la commande  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-005  
-**Source:** `utils/helpers.py:33-35`
-
-### 3.4 Exigences d'Injection de Code
+### 3.3 Exigences d'Insecure Deserialization
 **Source:** Analyse helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
-**REQ-FUNC-008** : Utilisation dangereuse de eval()  
-**Description:** Les fonctions `executeUserScript()` et `calculate()` doivent utiliser eval() sur input utilisateur  
-**Priorité:** CRITIQUE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-006  
-**Source:** `static/js/frontend.js:16`, `utils/helpers.py:44`
+**REQ-FUNC-006** : Désérialisation pickle non sécurisée  
+**Description:** La fonction `deserialize_data()` doit utiliser pickle.loads sur données non fiables  
+**Traçabilité:** helpers.py:deserialize_data()  
+**Criticité:** Critique
 
-**REQ-FUNC-009** : Désérialisation pickle non sécurisée  
-**Description:** La fonction `deserialize_data()` doit utiliser pickle.loads() sur données non fiables  
-**Priorité:** CRITIQUE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-003  
-**Source:** `utils/helpers.py:23-25`
-
-**REQ-FUNC-010** : Import dynamique non contrôlé  
-**Description:** La fonction `import_module_dynamic()` doit permettre l'import de modules arbitraires via __import__  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-008  
-**Source:** `utils/helpers.py:39-40`
-
-### 3.5 Exigences de Path Traversal
+### 3.4 Exigences de Path Traversal
 **Source:** Analyse helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
-**REQ-FUNC-011** : Lecture fichier sans validation  
-**Description:** La fonction `read_file()` doit accepter des chemins relatifs sans validation permettant ../  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-004  
-**Source:** `utils/helpers.py:28-30`
+**REQ-FUNC-007** : Path Traversal dans lecture fichiers  
+**Description:** La fonction `read_file()` doit permettre la lecture de fichiers arbitraires  
+**Traçabilité:** helpers.py:read_file()  
+**Criticité:** Haute
 
-### 3.6 Exigences de Transmission Non Sécurisée
-**Source:** Analyse frontend.js  
+### 3.5 Exigences de Hardcoded Secrets
+**Source:** Analyse frontend.js et helpers.py  
 **Confiance:** 🟢 ÉLEVÉE
 
-**REQ-FUNC-012** : Transmission HTTP de secrets  
-**Description:** La fonction `sendAnalytics()` doit transmettre des tokens secrets via HTTP (non HTTPS)  
-**Priorité:** HAUTE  
-**Traçabilité:** OBJ-002, PÉRIM-IN-007  
-**Source:** `static/js/frontend.js:39-45`
+**REQ-FUNC-008** : Clés API hardcodées côté client  
+**Description:** La fonction `sendAnalytics()` doit contenir une clé API en dur  
+**Traçabilité:** frontend.js:sendAnalytics()  
+**Criticité:** Haute
+
+**REQ-FUNC-009** : Credentials hardcodés backend  
+**Description:** La fonction `backup_database()` doit contenir des credentials en clair  
+**Traçabilité:** helpers.py:backup_database()  
+**Criticité:** Critique
 
 ---
 
-## SECTION 4 : USER STORIES ET CAS D'USAGE
+## SECTION 4 : EXIGENCES NON-FONCTIONNELLES
 
-*(Section à compléter)*
+### 4.1 Exigences de Sécurité (Intentionnellement Non Respectées)
+**Source:** Contexte repository de test  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-NFR-001** : Vulnérabilités détectables  
+**Description:** Chaque vulnérabilité doit être suffisamment évidente pour être détectée par une plateforme d'AI Code Review  
+**Criticité:** Haute  
+**Validation:** Code review manuel + test plateforme IA
+
+**REQ-NFR-002** : Diversité des vulnérabilités  
+**Description:** Le repository doit couvrir au minimum 8 types de vulnérabilités différentes (XSS, Command Injection, Insecure Deserialization, Path Traversal, Hardcoded Secrets, eval(), HTTP, Dynamic Import)  
+**Criticité:** Moyenne  
+**Validation:** Checklist des types de vulnérabilités
+
+**REQ-NFR-003** : Réalisme des scénarios  
+**Description:** Les vulnérabilités doivent ressembler à du code réel (pas de patterns trop évidents ou artificiels)  
+**Criticité:** Moyenne  
+**Validation:** Review par équipe sécurité
+
+### 4.2 Exigences de Maintenabilité
+**Source:** Bonnes pratiques repository de test  
+**Confiance:** 🟡 MOYENNE
+
+**REQ-NFR-004** : Documentation des vulnérabilités  
+**Description:** Chaque vulnérabilité doit être documentée avec son type, sa localisation et son impact potentiel  
+**Criticité:** Moyenne  
+**Validation:** Présence de documentation complète
+
+**REQ-NFR-005** : Code commenté  
+**Description:** Les sections vulnérables doivent contenir des commentaires explicatifs pour les testeurs  
+**Criticité:** Faible  
+**Validation:** Review du code
+
+### 4.3 Exigences de Performance
+**Source:** Déduction contexte test  
+**Confiance:** 🟡 MOYENNE
+
+**REQ-NFR-006** : Temps d'analyse acceptable  
+**Description:** Le repository doit pouvoir être analysé par une plateforme IA en moins de 5 minutes  
+**Criticité:** Faible  
+**Validation:** Test chronométré
+
+**REQ-NFR-007** : Taille de repository raisonnable  
+**Description:** Le repository ne doit pas dépasser 100 fichiers pour faciliter les tests  
+**Criticité:** Faible  
+**Validation:** Comptage fichiers
+
+### 4.4 Exigences de Compatibilité
+**Source:** Analyse langages utilisés  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-NFR-008** : Support Python 3.x  
+**Description:** Le code Python doit être compatible Python 3.7+  
+**Criticité:** Moyenne  
+**Validation:** Test exécution
+
+**REQ-NFR-009** : Support JavaScript moderne  
+**Description:** Le code JavaScript doit utiliser ES6+ pour refléter les pratiques actuelles  
+**Criticité:** Moyenne  
+**Validation:** Test navigateurs modernes
 
 ---
-
-## SECTION 5 : RÈGLES MÉTIER
-
-*(Section à compléter)*
-
----
-
-## SECTION 6 : MATRICES DE TRAÇABILITÉ
-
-*(Section à compléter)*
-
----
-
-## SECTION 7 : ANNEXES
-
-*(Section à compléter)*
-
----
-
-## SECTION 8 : LISTE DE VALIDATION PRIORITAIRE
-
-### Questions Critiques (🔴)
-*Aucune - Code source disponible*
-
-### Questions Importantes (🟡)
-1. **Validation Périmètre Exclu** : Confirmer que les corrections automatiques sont hors scope
-2. **Validation Objectifs** : Confirmer que le repository sert uniquement de benchmark de test
-3. **Ajout Vulnérabilités** : D'autres types de vulnérabilités doivent-ils être ajoutés ?
-
-### Informations Manquantes (⚪)
-1. Critères de succès précis pour la détection par l'IA
-2. Format attendu des rapports d'analyse
-3. Métriques de performance attendues (taux de détection, faux positifs)
-
----
-
-**Document généré par:** Agent Spécifications Fonctionnelles  
-**Dernière mise à jour:** 2025-01-21
