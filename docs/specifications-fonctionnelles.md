@@ -109,106 +109,101 @@ ai-security-test/
 | NFR-SEC-004 | Credentials en variables d'environnement | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
 | NFR-SEC-005 | Mode debug désactivé en production | ❌ VIOLÉ INTENTIONNELLEMENT | 🟢 100% | Code |
 
-### 3.3 Maintenabilité
-
-| ID | Exigence | Statut | Confiance | Source |
-|----|----------|--------|-----------|--------|
-| NFR-MAIN-001 | Code documenté avec commentaires explicites | ✅ RESPECTÉ | 🟢 100% | Code |
-| NFR-MAIN-002 | Structure modulaire claire | ✅ RESPECTÉ | 🟢 90% | Arborescence |
-
 ---
 
-## 👤 SECTION 4 : USER STORIES
+## 📖 SECTION 4 : USER STORIES
 **Confiance: 85% 🟢** | **Source: Analyse objectifs + code**
 
-### 4.1 User Stories - Développeur AI Platform
-
-#### US-001: Tester la détection XSS
-**Confiance: 95% 🟢** | **Priorité: 🔴 CRITIQUE** | **Lié à: OBJ-001, OBJ-002**
-
-**En tant que** développeur de plateforme AI de code review  
-**Je veux** analyser le code contenant des vulnérabilités XSS  
-**Afin de** vérifier que mon outil détecte correctement les failles XSS reflected et stored
+### US-001: Détection XSS Reflected
+**En tant que** plateforme AI de code review  
+**Je veux** détecter les vulnérabilités XSS reflected dans le code  
+**Afin de** protéger les applications contre l'injection de scripts malveillants
 
 **Critères d'acceptation:**
-- ✅ La plateforme scanne web/views.py lignes 8-31
-- ✅ Détecte XSS dans route /profile (template non échappé)
-- ✅ Détecte XSS dans route /search (réponse HTML directe)
-- ✅ Génère un rapport avec sévérité HAUTE
-- ✅ Fournit des recommandations de correction
+- ✅ Détection de la route /search avec input non échappé
+- ✅ Identification ligne exacte (L25-31)
+- ✅ Sévérité: HAUTE
 
-**Source:** web/views.py L8-31
+**Trace:** OBJ-001, OBJ-002 | Source: web/views.py
 
 ---
 
-#### US-002: Tester la détection Command Injection
-**Confiance: 95% 🟢** | **Priorité: 🔴 CRITIQUE** | **Lié à: OBJ-001, OBJ-002**
-
-**En tant que** développeur de plateforme AI  
-**Je veux** analyser le code avec injection de commandes  
-**Afin de** valider la détection des appels système dangereux
+### US-002: Détection Command Injection
+**En tant que** plateforme AI de code review  
+**Je veux** détecter l'utilisation dangereuse de os.system() avec inputs utilisateur  
+**Afin de** prévenir l'exécution de commandes arbitraires
 
 **Critères d'acceptation:**
-- ✅ Détecte os.system() avec input utilisateur non validé
-- ✅ Identifie la route /admin comme critique
-- ✅ Suggère l'utilisation de subprocess avec validation
-- ✅ Sévérité marquée CRITIQUE
+- ✅ Détection route /admin avec os.system()
+- ✅ Identification ligne exacte (L33-42)
+- ✅ Sévérité: CRITIQUE
 
-**Source:** web/views.py L33-42
+**Trace:** OBJ-001, OBJ-002 | Source: web/views.py
 
 ---
 
-#### US-003: Tester la détection de secrets exposés
-**Confiance: 90% 🟢** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-001, OBJ-002**
-
-**En tant que** développeur de plateforme AI  
-**Je veux** scanner le code JavaScript frontend  
-**Afin de** détecter les API keys et secrets hardcodés
+### US-003: Benchmark de Précision
+**En tant que** développeur de la plateforme AI  
+**Je veux** mesurer le taux de détection sur ce repository  
+**Afin de** valider la performance de l'outil
 
 **Critères d'acceptation:**
-- ✅ Scanne static/js/frontend.js
-- ✅ Détecte les clés API en clair
-- ✅ Identifie les tokens exposés
-- ✅ Recommande l'utilisation de variables d'environnement
+- ✅ Taux de détection > 90%
+- ✅ Aucun faux positif
+- ✅ Rapport détaillé généré
 
-**Source:** static/js/frontend.js
+**Trace:** OBJ-003 | Source: Déduction
 
 ---
 
-### 4.2 User Stories - Security Researcher
+## 🔐 SECTION 5 : RÈGLES MÉTIER
+**Confiance: 90% 🟢**
 
-#### US-004: Valider la pertinence des vulnérabilités
-**Confiance: 80% 🟡** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-003**
+### RG-001: Classification Sévérité
+**Source:** OWASP Top 10
 
-**En tant que** chercheur en sécurité  
-**Je veux** auditer le code du repository  
-**Afin de** confirmer que les vulnérabilités sont réalistes et exploitables
-
-**Critères d'acceptation:**
-- ✅ Chaque vulnérabilité est documentée
-- ✅ Les vulnérabilités suivent OWASP Top 10
-- ✅ Code exploitable en conditions réelles
-- ✅ Pas de faux positifs intentionnels
-
-**Source:** Déduction objectifs
+| Vulnérabilité | Sévérité | Justification |
+|---------------|----------|---------------|
+| Command Injection | 🔴 CRITIQUE | Exécution code arbitraire |
+| SQL Injection | 🔴 CRITIQUE | Accès base de données |
+| XSS Stored | 🟠 HAUTE | Persistance attaque |
+| XSS Reflected | 🟡 MOYENNE | Impact limité |
+| Path Traversal | 🟡 MOYENNE | Lecture fichiers |
 
 ---
 
-### 4.3 User Stories - QA/Testeur
+## 📊 SECTION 6 : MATRICES DE TRAÇABILITÉ
 
-#### US-005: Exécuter des tests de détection
-**Confiance: 75% 🟡** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-004**
+### 6.1 Matrice OBJ ↔ US
 
-**En tant que** testeur QA  
-**Je veux** exécuter la plateforme AI sur ce repository  
-**Afin de** mesurer le taux de détection et les faux positifs
-
-**Critères d'acceptation:**
-- ✅ Tous les fichiers sont analysables
-- ✅ Temps d'analyse < 5 minutes
-- ✅ Rapport de résultats exploitable
-- ✅ Métriques de couverture disponibles
-
-**Source:** Déduction objectifs
+| Objectif | US-001 | US-002 | US-003 |
+|----------|--------|--------|--------|
+| OBJ-001 | ✅ | ✅ | ✅ |
+| OBJ-002 | ✅ | ✅ | ❌ |
+| OBJ-003 | ❌ | ❌ | ✅ |
 
 ---
+
+## 📚 SECTION 7 : GLOSSAIRE
+
+- **XSS**: Cross-Site Scripting
+- **OWASP**: Open Web Application Security Project
+- **AI Code Review**: Analyse automatisée de code par intelligence artificielle
+
+---
+
+## 📎 SECTION 8 : ANNEXES
+
+### 8.1 Liste de Validation Prioritaire
+
+🔴 **CRITIQUE**
+- [ ] Valider détection Command Injection (US-002)
+- [ ] Confirmer sévérité CRITIQUE assignée
+
+🟡 **HAUTE**
+- [ ] Valider détection XSS (US-001)
+- [ ] Vérifier taux détection > 90% (US-003)
+
+---
+
+**FIN DU DOCUMENT**
