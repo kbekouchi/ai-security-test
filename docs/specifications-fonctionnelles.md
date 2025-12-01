@@ -125,39 +125,34 @@ ai-security-test/
 
 | Fonction | Vulnérabilité | Type OWASP | Ligne |
 |----------|---------------|------------|-------|
-| `displayUserInput()` | XSS via innerHTML | A03:2021 Injection | L5-8 |
-| `loadUserData()` | XSS via document.write | A03:2021 Injection | L10-14 |
-| `executeUserScript()` | eval() dangereux | A03:2021 Injection | L16-19 |
-| `updateProfile()` | XSS via setAttribute + outerHTML | A03:2021 Injection | L21-30 |
-| `CONFIG` object | Secrets hardcodés côté client | A02:2021 Cryptographic Failures | L33-37 |
-| `sendAnalytics()` | Transmission HTTP non sécurisée | A02:2021 Cryptographic Failures | L39-47 |
-
-**Secrets Exposés:**
-- `apiKey`: ak_live_abcdefghijklmnopqrstuvwxyz123456
-- `secretToken`: tok_secret_987654321abcdefgh
-- `stripeKey`: pk_live_1234567890abcdefghijklmnop
+| `displayUserInput()` | XSS via innerHTML | A03:2021 Injection | L5-7 |
+| `loadUserData()` | XSS via document.write() | A03:2021 Injection | L10-13 |
+| `executeUserScript()` | eval() dangereux | A03:2021 Injection | L16-18 |
+| `updateProfile()` | XSS via setAttribute + outerHTML | A03:2021 Injection | L21-29 |
+| `CONFIG` | Secrets hardcodés (API keys) | A07:2021 Auth Failures | L32-36 |
+| `sendAnalytics()` | Transmission HTTP non sécurisée | A02:2021 Crypto Failures | L39-47 |
 
 **Périmètre IN:**
-- ✅ 6 fonctions JavaScript vulnérables
+- ✅ 5 fonctions JavaScript vulnérables
 - ✅ Manipulation DOM non sécurisée
 - ✅ Secrets exposés côté client
-- ✅ Transmission HTTP non chiffrée
+- ✅ Communication HTTP non chiffrée
 
 **Périmètre OUT:**
-- ❌ Content Security Policy (CSP)
+- ❌ Framework frontend (React/Vue)
+- ❌ Content Security Policy
 - ❌ Validation côté client
-- ❌ HTTPS enforcement
-- ❌ Gestion sécurisée des secrets
 
-### 2.3 Synthèse Couverture OWASP Top 10
+### 2.3 Matrice de Couverture OWASP
 
-| OWASP 2021 | Présent | Fichiers Concernés |
-|------------|---------|--------------------|
-| A01 - Broken Access Control | ✅ | utils/helpers.py (Path Traversal) |
-| A02 - Cryptographic Failures | ✅ | frontend.js (Secrets exposés, HTTP) |
-| A03 - Injection | ✅ | Tous les fichiers (XSS, Command Injection, eval) |
-| A07 - Auth Failures | ✅ | utils/helpers.py (Credentials hardcodés) |
-| A08 - Software Data Integrity | ✅ | utils/helpers.py (Deserialization) |
-| A05 - Security Misconfiguration | ✅ | web/views.py (Debug mode) |
+| OWASP Top 10 2021 | Couvert | Fichiers Concernés | Nb Vulnérabilités |
+|-------------------|---------|-------------------|------------------|
+| A01 - Broken Access Control | ✅ | helpers.py | 1 |
+| A02 - Cryptographic Failures | ✅ | frontend.js | 1 |
+| A03 - Injection | ✅ | views.py, helpers.py, frontend.js | 11 |
+| A07 - Auth Failures | ✅ | helpers.py, frontend.js | 2 |
+| A08 - Data Integrity Failures | ✅ | helpers.py | 1 |
+| A05 - Security Misconfiguration | ✅ | views.py | 1 |
+| **TOTAL** | **6/10** | **3 fichiers** | **17 vulnérabilités** |
 
 ---
