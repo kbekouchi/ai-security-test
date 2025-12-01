@@ -110,28 +110,148 @@ Le projet `ai-security-test` est un repository de test créé spécifiquement po
 **PÉRIM-EX-005** : Tests de performance ou charge  
 **PÉRIM-EX-006** : Intégration avec systèmes externes réels
 
-### 2.4 Contraintes Techniques
-**Source:** Analyse du code et contexte  
-**Confiance:** 🟡 MOYENNE
+---
 
-**CONT-001** : Langage principal Python (backend)  
-**CONT-002** : JavaScript vanilla (frontend, pas de framework)  
-**CONT-003** : Vulnérabilités doivent être évidentes pour validation IA  
-**CONT-004** : Code doit rester lisible et commenté  
-**CONT-005** : Repository public (pas de données sensibles réelles)
+## SECTION 3 : EXIGENCES FONCTIONNELLES DÉTAILLÉES
 
-### 2.5 Limites et Hypothèses
-**Source:** Contexte projet de test  
-**Confiance:** 🟡 MOYENNE
+### 3.1 Exigences de Vulnérabilités XSS
+**Source:** Analyse frontend.js  
+**Confiance:** 🟢 ÉLEVÉE
 
-**Hypothèses:**
-- H1: La plateforme d'AI Code Review a accès en lecture au repository
-- H2: Les vulnérabilités sont intentionnelles et documentées
-- H3: Aucun utilisateur réel n'interagira avec le code en production
-- H4: Le code ne sera jamais déployé dans un environnement réel
+**REQ-FUNC-001** : Exposition XSS via innerHTML  
+**Description:** La fonction `displayUserInput()` doit accepter du contenu utilisateur non sanitizé et l'injecter directement via innerHTML  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-001  
+**Source:** `static/js/frontend.js:6`
 
-**Limites connues:**
-- L1: Pas de couverture exhaustive de toutes les vulnérabilités OWASP Top 10
-- L2: Focus sur vulnérabilités détectables par analyse statique
-- L3: Pas de simulation d'attaques réelles
+**REQ-FUNC-002** : Exposition XSS via document.write  
+**Description:** La fonction `loadUserData()` doit utiliser document.write pour afficher des données utilisateur sans validation  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-001  
+**Source:** `static/js/frontend.js:11-12`
 
+**REQ-FUNC-003** : Exposition XSS via outerHTML  
+**Description:** La fonction `updateProfile()` doit permettre l'injection de contenu via outerHTML sans échappement  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-001  
+**Source:** `static/js/frontend.js:28-29`
+
+### 3.2 Exigences de Command Injection
+**Source:** Analyse helpers.py  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-004** : Exécution commande système directe  
+**Description:** La fonction `execute_command()` doit exécuter des commandes utilisateur via os.system() sans validation  
+**Priorité:** CRITIQUE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-002  
+**Source:** `utils/helpers.py:8-11`
+
+**REQ-FUNC-005** : Subprocess avec shell=True  
+**Description:** La fonction `run_shell_command()` doit utiliser subprocess.run avec shell=True sur input utilisateur  
+**Priorité:** CRITIQUE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-002  
+**Source:** `utils/helpers.py:16-18`
+
+### 3.3 Exigences de Secrets Exposés
+**Source:** Analyse frontend.js  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-006** : Clés API hardcodées côté client  
+**Description:** Le code doit contenir des clés API, tokens secrets et clés Stripe en clair dans le JavaScript  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-005  
+**Source:** `static/js/frontend.js:33-37`
+
+**REQ-FUNC-007** : Credentials en clair dans commandes  
+**Description:** La fonction `backup_database()` doit contenir username/password MySQL en clair dans la commande  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-005  
+**Source:** `utils/helpers.py:33-35`
+
+### 3.4 Exigences d'Injection de Code
+**Source:** Analyse helpers.py  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-008** : Utilisation dangereuse de eval()  
+**Description:** Les fonctions `executeUserScript()` et `calculate()` doivent utiliser eval() sur input utilisateur  
+**Priorité:** CRITIQUE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-006  
+**Source:** `static/js/frontend.js:16`, `utils/helpers.py:44`
+
+**REQ-FUNC-009** : Désérialisation pickle non sécurisée  
+**Description:** La fonction `deserialize_data()` doit utiliser pickle.loads() sur données non fiables  
+**Priorité:** CRITIQUE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-003  
+**Source:** `utils/helpers.py:23-25`
+
+**REQ-FUNC-010** : Import dynamique non contrôlé  
+**Description:** La fonction `import_module_dynamic()` doit permettre l'import de modules arbitraires via __import__  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-008  
+**Source:** `utils/helpers.py:39-40`
+
+### 3.5 Exigences de Path Traversal
+**Source:** Analyse helpers.py  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-011** : Lecture fichier sans validation  
+**Description:** La fonction `read_file()` doit accepter des chemins relatifs sans validation permettant ../  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-004  
+**Source:** `utils/helpers.py:28-30`
+
+### 3.6 Exigences de Transmission Non Sécurisée
+**Source:** Analyse frontend.js  
+**Confiance:** 🟢 ÉLEVÉE
+
+**REQ-FUNC-012** : Transmission HTTP de secrets  
+**Description:** La fonction `sendAnalytics()` doit transmettre des tokens secrets via HTTP (non HTTPS)  
+**Priorité:** HAUTE  
+**Traçabilité:** OBJ-002, PÉRIM-IN-007  
+**Source:** `static/js/frontend.js:39-45`
+
+---
+
+## SECTION 4 : USER STORIES ET CAS D'USAGE
+
+*(Section à compléter)*
+
+---
+
+## SECTION 5 : RÈGLES MÉTIER
+
+*(Section à compléter)*
+
+---
+
+## SECTION 6 : MATRICES DE TRAÇABILITÉ
+
+*(Section à compléter)*
+
+---
+
+## SECTION 7 : ANNEXES
+
+*(Section à compléter)*
+
+---
+
+## SECTION 8 : LISTE DE VALIDATION PRIORITAIRE
+
+### Questions Critiques (🔴)
+*Aucune - Code source disponible*
+
+### Questions Importantes (🟡)
+1. **Validation Périmètre Exclu** : Confirmer que les corrections automatiques sont hors scope
+2. **Validation Objectifs** : Confirmer que le repository sert uniquement de benchmark de test
+3. **Ajout Vulnérabilités** : D'autres types de vulnérabilités doivent-ils être ajoutés ?
+
+### Informations Manquantes (⚪)
+1. Critères de succès précis pour la détection par l'IA
+2. Format attendu des rapports d'analyse
+3. Métriques de performance attendues (taux de détection, faux positifs)
+
+---
+
+**Document généré par:** Agent Spécifications Fonctionnelles  
+**Dernière mise à jour:** 2025-01-21
