@@ -123,103 +123,86 @@ ai-security-test/
 #### 2.2.3 Module FRONTEND (static/js/frontend.js)
 **Confiance: 90% 🟢** | **Source: static/js/frontend.js**
 
-| Élément | Vulnérabilité | Type | Ligne |
-|---------|---------------|------|-------|
-| **API Key hardcodée** | Secret exposé dans code | A05:2021 Security Misconfig | L3 |
-| **innerHTML dynamique** | DOM-based XSS | A03:2021 Injection | L10 |
-| **eval() sur input** | Code Injection JavaScript | A03:2021 Injection | L15 |
+| Élément | Vulnérabilité | Type OWASP | Ligne |
+|---------|---------------|------------|-------|
+| **API Key hardcodée** | Secrets exposés dans code client | A02:2021 Cryptographic Failures | L3 |
+| **innerHTML dynamique** | DOM-based XSS | A03:2021 Injection | L7-9 |
+| **eval() sur données externes** | Code Injection côté client | A03:2021 Injection | L11 |
 
 **Périmètre IN:**
-- ✅ Code JavaScript client-side
-- ✅ Manipulation DOM vulnérable
+- ✅ Code JavaScript vulnérable
 - ✅ Secrets exposés
+- ✅ Manipulation DOM non sécurisée
 
 **Périmètre OUT:**
 - ❌ Framework frontend moderne
-- ❌ Gestion sécurisée des secrets
 - ❌ Content Security Policy
+- ❌ Gestion sécurisée des secrets
+
+### 2.3 Synthèse de Couverture
+
+**Total vulnérabilités identifiées**: 13  
+**Types OWASP couverts**: 4/10
 
 ---
 
 ## ⚙️ SECTION 3 : EXIGENCES NON-FONCTIONNELLES
-**Confiance: 70% 🟡** | **Source: Déduction basée sur usage prévu**
+**Confiance: 85% 🟢** | **Source: Déduction contexte test**
 
 ### 3.1 Performance
 
-| ID | Exigence | Valeur Cible | Priorité |
-|----|----------|--------------|----------|
-| NFR-PERF-001 | Temps de réponse routes HTTP | < 1s | 🟢 BASSE |
-| NFR-PERF-002 | Capacité à gérer tests concurrents | 10 requêtes/s | 🟢 BASSE |
+| ID | Exigence | Critère | Priorité |
+|----|----------|---------|----------|
+| NFR-PERF-001 | Temps de réponse routes HTTP | < 500ms | 🟢 BASSE |
+| NFR-PERF-002 | Charge supportée | N/A (repo test) | ⚪ N/A |
 
-**Justification**: En tant que repo de test, la performance n'est pas critique.
+### 3.2 Sécurité
 
-### 3.2 Sécurité (Inversée)
-
-⚠️ **ATTENTION**: Ce repository est INTENTIONNELLEMENT vulnérable.
-
-| ID | Anti-Exigence | Statut | Source |
-|----|---------------|--------|--------|
-| NFR-SEC-001 | ❌ Aucune validation des inputs | REQUIS | Objectif projet |
-| NFR-SEC-002 | ❌ Pas de sanitization | REQUIS | Objectif projet |
-| NFR-SEC-003 | ❌ Secrets en clair acceptés | REQUIS | Objectif projet |
-| NFR-SEC-004 | ❌ Debug mode en production | REQUIS | web/views.py L46 |
+| ID | Exigence | Critère | Priorité |
+|----|----------|---------|----------|
+| NFR-SEC-001 | Isolation environnement | Jamais en production | 🔴 CRITIQUE |
+| NFR-SEC-002 | Documentation vulnérabilités | Toutes documentées | 🔴 CRITIQUE |
+| NFR-SEC-003 | Avertissements visibles | README + commentaires code | 🟡 HAUTE |
 
 ### 3.3 Maintenabilité
 
-| ID | Exigence | Description | Priorité |
-|----|----------|-------------|----------|
-| NFR-MAINT-001 | Documentation des vulnérabilités | Chaque vulnérabilité doit être commentée | 🟡 HAUTE |
-| NFR-MAINT-002 | Code lisible | Vulnérabilités facilement identifiables | 🟡 HAUTE |
-| NFR-MAINT-003 | Versioning Git | Historique clair des modifications | 🟡 HAUTE |
+| ID | Exigence | Critère | Priorité |
+|----|----------|---------|----------|
+| NFR-MAIN-001 | Structure code claire | Séparation modules | 🟡 HAUTE |
+| NFR-MAIN-002 | Commentaires explicites | Chaque vulnérabilité commentée | 🟡 HAUTE |
+| NFR-MAIN-003 | Versioning | Git + tags | 🟢 MOYENNE |
 
 ---
 
 ## 📖 SECTION 4 : USER STORIES
-**Confiance: 85% 🟢** | **Source: Analyse besoins utilisateurs**
+**Confiance: 80% 🟡** | **Source: Déduction usage**
 
-### 4.1 Développeur de Plateforme AI
+### US-001: Tester la détection XSS
+**En tant que** développeur de plateforme AI  
+**Je veux** analyser les routes /profile et /search  
+**Afin de** vérifier que mon outil détecte les XSS reflected et stored
 
-**US-001**: Tester la détection XSS  
-**En tant que** développeur AI Platform  
-**Je veux** analyser le code avec des XSS  
-**Afin de** valider que mon outil détecte correctement les failles XSS  
-**Critères d'acceptation**:  
-- ✅ Le repo contient au moins 2 types de XSS (stored/reflected/DOM)  
-- ✅ Les vulnérabilités sont réalistes  
-- ✅ Le code est exécutable  
-**Priorité**: 🔴 CRITIQUE | **Source**: Objectif principal projet
+**Critères d'acceptation:**
+- ✅ Détection XSS dans template Jinja2 non échappé
+- ✅ Détection XSS dans réponse HTML directe
+- ✅ Identification ligne précise
 
-**US-002**: Évaluer la détection Command Injection  
-**En tant que** développeur AI Platform  
-**Je veux** tester mon outil sur des command injections  
-**Afin de** mesurer le taux de détection  
-**Critères d'acceptation**:  
-- ✅ Présence de os.system() avec input non validé  
-- ✅ Présence de subprocess avec shell=True  
-- ✅ Contextes d'exploitation variés  
-**Priorité**: 🔴 CRITIQUE | **Source**: utils/helpers.py
+**Priorité**: 🔴 CRITIQUE  
+**Source**: web/views.py L8-31
 
-**US-003**: Benchmark OWASP Top 10  
-**En tant que** développeur AI Platform  
-**Je veux** un repo couvrant OWASP Top 10  
-**Afin de** avoir un benchmark complet  
-**Critères d'acceptation**:  
-- ✅ Au moins 5 catégories OWASP couvertes  
-- ✅ Documentation des types de vulnérabilités  
-**Priorité**: 🟡 HAUTE | **Source**: README.md
-
-### 4.2 Security Researcher
-
-**US-004**: Valider la pertinence des vulnérabilités  
+### US-002: Tester la détection Command Injection
 **En tant que** security researcher  
-**Je veux** auditer le code vulnérable  
-**Afin de** confirmer que les vulnérabilités sont réalistes  
-**Critères d'acceptation**:  
-- ✅ Code reflète des erreurs réelles  
-- ✅ Vulnérabilités exploitables  
-- ✅ Pas de faux positifs intentionnels  
-**Priorité**: 🟡 HAUTE | **Source**: Déduction
+**Je veux** analyser les fonctions execute_command et run_shell_command  
+**Afin de** valider la détection d'injection de commandes
+
+**Critères d'acceptation:**
+- ✅ Détection os.system() avec input non validé
+- ✅ Détection subprocess avec shell=True
+- ✅ Suggestion de remediation
+
+**Priorité**: 🔴 CRITIQUE  
+**Source**: utils/helpers.py L8-19
 
 ---
 
-*Document en cours de rédaction - Sections 5 à 8 à compléter*
+*[Suite des sections à venir: Section 5 - Règles Métier, Section 6 - Matrices de Traçabilité, Section 7 - Annexes, Section 8 - Liste de Validation]*
