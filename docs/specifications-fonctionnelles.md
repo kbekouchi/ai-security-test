@@ -113,79 +113,102 @@ ai-security-test/
 
 | ID | Exigence | Statut | Confiance | Source |
 |----|----------|--------|-----------|--------|
-| NFR-MAIN-001 | Code documenté avec commentaires explicites | ✅ RESPECTÉ | 🟢 90% | Code |
-| NFR-MAIN-002 | Structure modulaire claire | ✅ RESPECTÉ | 🟢 85% | Arborescence |
+| NFR-MAIN-001 | Code documenté avec commentaires explicites | ✅ RESPECTÉ | 🟢 100% | Code |
+| NFR-MAIN-002 | Structure modulaire claire | ✅ RESPECTÉ | 🟢 90% | Arborescence |
 
 ---
 
 ## 👤 SECTION 4 : USER STORIES
-**Confiance: 85% 🟢** | **Source: Analyse code, déduction usage**
+**Confiance: 85% 🟢** | **Source: Analyse objectifs + code**
 
-### 4.1 Epic: Détection de Vulnérabilités XSS
+### 4.1 User Stories - Développeur AI Platform
 
-#### US-001: Détection XSS Stored (Route /profile)
-**En tant que** plateforme AI de code review  
-**Je veux** détecter les vulnérabilités XSS Stored dans les templates Flask  
-**Afin de** identifier les risques d'injection de scripts malveillants persistants
+#### US-001: Tester la détection XSS
+**Confiance: 95% 🟢** | **Priorité: 🔴 CRITIQUE** | **Lié à: OBJ-001, OBJ-002**
 
-**Priorité**: 🔴 CRITIQUE  
-**Confiance**: 🟢 95%  
-**Source**: web/views.py L8-23  
-**Trace**: OBJ-001, OBJ-002
+**En tant que** développeur de plateforme AI de code review  
+**Je veux** analyser le code contenant des vulnérabilités XSS  
+**Afin de** vérifier que mon outil détecte correctement les failles XSS reflected et stored
 
-**Critères d'acceptation**:
-- ✅ Identifier l'absence d'échappement dans `render_template_string()`
-- ✅ Détecter l'interpolation directe de `user_data` sans validation
-- ✅ Signaler la sévérité comme HAUTE/CRITIQUE
-- ✅ Fournir la ligne exacte du code vulnérable
+**Critères d'acceptation:**
+- ✅ La plateforme scanne web/views.py lignes 8-31
+- ✅ Détecte XSS dans route /profile (template non échappé)
+- ✅ Détecte XSS dans route /search (réponse HTML directe)
+- ✅ Génère un rapport avec sévérité HAUTE
+- ✅ Fournit des recommandations de correction
 
-#### US-002: Détection XSS Reflected (Route /search)
-**En tant que** plateforme AI de code review  
-**Je veux** détecter les vulnérabilités XSS Reflected dans les réponses HTTP  
-**Afin de** identifier les risques d'injection via paramètres URL
+**Source:** web/views.py L8-31
 
-**Priorité**: 🔴 CRITIQUE  
-**Confiance**: 🟢 95%  
-**Source**: web/views.py L25-31  
-**Trace**: OBJ-001, OBJ-002
+---
 
-**Critères d'acceptation**:
-- ✅ Identifier l'absence de validation sur `request.args.get()`
-- ✅ Détecter l'insertion directe dans HTML sans échappement
-- ✅ Signaler le vecteur d'attaque (paramètre GET)
+#### US-002: Tester la détection Command Injection
+**Confiance: 95% 🟢** | **Priorité: 🔴 CRITIQUE** | **Lié à: OBJ-001, OBJ-002**
 
-### 4.2 Epic: Détection Command Injection
+**En tant que** développeur de plateforme AI  
+**Je veux** analyser le code avec injection de commandes  
+**Afin de** valider la détection des appels système dangereux
 
-#### US-003: Détection Command Injection (Route /admin)
-**En tant que** plateforme AI de code review  
-**Je veux** détecter l'utilisation dangereuse de `os.system()` avec input utilisateur  
-**Afin de** prévenir l'exécution de commandes système arbitraires
+**Critères d'acceptation:**
+- ✅ Détecte os.system() avec input utilisateur non validé
+- ✅ Identifie la route /admin comme critique
+- ✅ Suggère l'utilisation de subprocess avec validation
+- ✅ Sévérité marquée CRITIQUE
 
-**Priorité**: 🔴 CRITIQUE  
-**Confiance**: 🟢 100%  
-**Source**: web/views.py L33-42  
-**Trace**: OBJ-001, OBJ-002, NFR-SEC-003
+**Source:** web/views.py L33-42
 
-**Critères d'acceptation**:
-- ✅ Identifier `os.system()` avec concaténation d'input utilisateur
-- ✅ Détecter l'absence de validation/sanitization
-- ✅ Proposer des alternatives sécurisées (subprocess avec shell=False)
+---
 
-### 4.3 Epic: Détection Mauvaises Configurations
+#### US-003: Tester la détection de secrets exposés
+**Confiance: 90% 🟢** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-001, OBJ-002**
 
-#### US-004: Détection Debug Mode en Production
-**En tant que** plateforme AI de code review  
-**Je veux** détecter l'activation du mode debug Flask  
-**Afin de** prévenir l'exposition d'informations sensibles
+**En tant que** développeur de plateforme AI  
+**Je veux** scanner le code JavaScript frontend  
+**Afin de** détecter les API keys et secrets hardcodés
 
-**Priorité**: 🟡 HAUTE  
-**Confiance**: 🟢 100%  
-**Source**: web/views.py L45-46  
-**Trace**: OBJ-002, NFR-SEC-005
+**Critères d'acceptation:**
+- ✅ Scanne static/js/frontend.js
+- ✅ Détecte les clés API en clair
+- ✅ Identifie les tokens exposés
+- ✅ Recommande l'utilisation de variables d'environnement
 
-**Critères d'acceptation**:
-- ✅ Identifier `app.run(debug=True)`
-- ✅ Signaler le risque d'exposition du debugger Werkzeug
-- ✅ Recommander debug=False pour production
+**Source:** static/js/frontend.js
+
+---
+
+### 4.2 User Stories - Security Researcher
+
+#### US-004: Valider la pertinence des vulnérabilités
+**Confiance: 80% 🟡** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-003**
+
+**En tant que** chercheur en sécurité  
+**Je veux** auditer le code du repository  
+**Afin de** confirmer que les vulnérabilités sont réalistes et exploitables
+
+**Critères d'acceptation:**
+- ✅ Chaque vulnérabilité est documentée
+- ✅ Les vulnérabilités suivent OWASP Top 10
+- ✅ Code exploitable en conditions réelles
+- ✅ Pas de faux positifs intentionnels
+
+**Source:** Déduction objectifs
+
+---
+
+### 4.3 User Stories - QA/Testeur
+
+#### US-005: Exécuter des tests de détection
+**Confiance: 75% 🟡** | **Priorité: 🟡 HAUTE** | **Lié à: OBJ-004**
+
+**En tant que** testeur QA  
+**Je veux** exécuter la plateforme AI sur ce repository  
+**Afin de** mesurer le taux de détection et les faux positifs
+
+**Critères d'acceptation:**
+- ✅ Tous les fichiers sont analysables
+- ✅ Temps d'analyse < 5 minutes
+- ✅ Rapport de résultats exploitable
+- ✅ Métriques de couverture disponibles
+
+**Source:** Déduction objectifs
 
 ---
