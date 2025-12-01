@@ -121,77 +121,48 @@ ai-security-test/
 - ❌ Sanitization
 
 #### 2.2.3 Module FRONTEND (static/js/frontend.js)
-**Confiance: 85% 🟢** | **Source: static/js/frontend.js (déduction)**
+**Confiance: 95% 🟢** | **Source: static/js/frontend.js**
 
-| Composant | Vulnérabilité | Type OWASP | Description |
-|-----------|---------------|------------|-------------|
-| **Manipulation DOM** | XSS via innerHTML | A03:2021 Injection | Insertion HTML non échappé depuis input utilisateur |
-| **API Keys exposées** | Secrets hardcodés | A05:2021 Security Misconfiguration | Clés API en clair dans le code JavaScript |
-| **localStorage usage** | Stockage non sécurisé | A02:2021 Cryptographic Failures | Données sensibles en local storage |
-| **eval() dynamique** | Code Injection | A03:2021 Injection | Exécution de code JavaScript arbitraire |
+| Fonction | Vulnérabilité | Type OWASP | Ligne |
+|----------|---------------|------------|-------|
+| `displayUserInput()` | XSS via innerHTML | A03:2021 Injection | L5-8 |
+| `loadUserData()` | XSS via document.write | A03:2021 Injection | L10-14 |
+| `executeUserScript()` | eval() dangereux | A03:2021 Injection | L16-19 |
+| `updateProfile()` | XSS via setAttribute + outerHTML | A03:2021 Injection | L21-30 |
+| `CONFIG` | Secrets hardcodés côté client | A02:2021 Crypto Failures | L33-37 |
+| `sendAnalytics()` | Transmission non sécurisée HTTP | A02:2021 Crypto Failures | L39-47 |
+
+**Secrets Exposés:**
+- 🔴 `apiKey`: ak_live_abcdefghijklmnopqrstuvwxyz123456
+- 🔴 `secretToken`: tok_secret_987654321abcdefgh
+- 🔴 `stripeKey`: pk_live_1234567890abcdefghijklmnop
 
 **Périmètre IN:**
-- ✅ Vulnérabilités côté client (XSS, secrets exposés)
-- ✅ Mauvaises pratiques JavaScript courantes
-- ✅ Gestion DOM non sécurisée
+- ✅ 6 fonctions JavaScript vulnérables
+- ✅ Secrets exposés côté client
+- ✅ Manipulation DOM non sécurisée
+- ✅ Communication HTTP non chiffrée
 
 **Périmètre OUT:**
-- ❌ Framework JavaScript moderne (React/Vue)
-- ❌ Content Security Policy
-- ❌ Validation côté client
+- ❌ Content Security Policy (CSP)
+- ❌ Sanitization des inputs
+- ❌ Gestion sécurisée des secrets
 
-### 2.3 Synthèse de Couverture
+### 2.3 Cartographie des Vulnérabilités OWASP
 
-| Catégorie OWASP Top 10 | Présent | Modules Concernés | Priorité Détection |
-|------------------------|---------|-------------------|--------------------|
-| A01 Broken Access Control | ✅ | utils/helpers.py | 🔴 CRITIQUE |
-| A02 Cryptographic Failures | ✅ | static/js/frontend.js | 🟡 HAUTE |
-| A03 Injection | ✅ | web/views.py, utils/helpers.py | 🔴 CRITIQUE |
-| A05 Security Misconfiguration | ✅ | web/views.py, frontend.js | 🟡 HAUTE |
-| A07 Authentication Failures | ✅ | utils/helpers.py | 🔴 CRITIQUE |
-| A08 Software Data Integrity | ✅ | utils/helpers.py | 🟡 HAUTE |
+| OWASP Top 10 2021 | Présent | Fichiers Concernés | Count |
+|-------------------|---------|-------------------|-------|
+| **A01 - Broken Access Control** | ✅ | utils/helpers.py | 1 |
+| **A02 - Cryptographic Failures** | ✅ | static/js/frontend.js | 2 |
+| **A03 - Injection** | ✅ | web/views.py, utils/helpers.py, frontend.js | 11 |
+| **A04 - Insecure Design** | ⚪ | N/A | 0 |
+| **A05 - Security Misconfiguration** | ✅ | web/views.py (debug mode) | 1 |
+| **A06 - Vulnerable Components** | ⚪ | N/A | 0 |
+| **A07 - Auth Failures** | ✅ | utils/helpers.py | 1 |
+| **A08 - Data Integrity Failures** | ✅ | utils/helpers.py (pickle) | 1 |
+| **A09 - Logging Failures** | ⚪ | N/A | 0 |
+| **A10 - SSRF** | ⚪ | N/A | 0 |
 
-**Total vulnérabilités identifiées**: 15+  
-**Modules analysés**: 3/3 (100%)  
-**Couverture OWASP Top 10**: 6/10 (60%)
-
----
-
-## ⚙️ SECTION 3 : EXIGENCES FONCTIONNELLES
-**Confiance: 85% 🟢** | **Source: Analyse code, objectifs projet**
-
-### 3.1 Exigences de Détection
-
-| ID | Exigence | Priorité | Source | Confiance |
-|----|----------|----------|--------|----------|
-| REQ-FUNC-001 | Le système doit détecter les injections de commandes OS (os.system, subprocess avec shell=True) | 🔴 CRITIQUE | utils/helpers.py L8-19 | 🟢 95% |
-| REQ-FUNC-002 | Le système doit identifier les vulnérabilités XSS (reflected, stored, DOM-based) | 🔴 CRITIQUE | web/views.py L8-31 | 🟢 95% |
-| REQ-FUNC-003 | Le système doit détecter l'usage non sécurisé de pickle.loads() | 🟡 HAUTE | utils/helpers.py L21-25 | 🟢 90% |
-| REQ-FUNC-004 | Le système doit identifier les Path Traversal via manipulation de chemins fichiers | 🔴 CRITIQUE | utils/helpers.py L27-32 | 🟢 90% |
-| REQ-FUNC-005 | Le système doit détecter les credentials hardcodés dans le code source | 🔴 CRITIQUE | utils/helpers.py L34-38 | 🟢 95% |
-| REQ-FUNC-006 | Le système doit identifier l'usage dangereux de eval() sur inputs utilisateurs | 🔴 CRITIQUE | utils/helpers.py L46-48 | 🟢 95% |
-| REQ-FUNC-007 | Le système doit détecter le debug mode activé en production (Flask DEBUG=True) | 🟡 HAUTE | web/views.py L45-46 | 🟢 90% |
-| REQ-FUNC-008 | Le système doit identifier les secrets exposés côté client (API keys en JS) | 🟡 HAUTE | static/js/frontend.js | 🟡 75% |
-
-### 3.2 Exigences de Reporting
-
-| ID | Exigence | Priorité | Source | Confiance |
-|----|----------|----------|--------|----------|
-| REQ-FUNC-009 | Le système doit générer un rapport listant toutes les vulnérabilités détectées | 🔴 CRITIQUE | OBJ-001 | 🟢 90% |
-| REQ-FUNC-010 | Le rapport doit inclure: fichier, ligne, type OWASP, sévérité, recommandation | 🔴 CRITIQUE | OBJ-003 | 🟢 90% |
-| REQ-FUNC-011 | Le système doit calculer un score de sécurité global du repository | 🟡 HAUTE | OBJ-003 | 🟡 70% |
-| REQ-FUNC-012 | Le système doit tracer chaque détection vers la règle de sécurité appliquée | 🟡 HAUTE | OBJ-004 | 🟡 75% |
-
-### 3.3 Exigences de Performance
-
-| ID | Exigence | Priorité | Source | Confiance |
-|----|----------|----------|--------|----------|
-| REQ-FUNC-013 | L'analyse complète du repository doit s'effectuer en moins de 5 minutes | 🟡 HAUTE | Déduction | ⚪ 60% |
-| REQ-FUNC-014 | Le système doit supporter l'analyse de repositories jusqu'à 100 fichiers | 🟡 HAUTE | Déduction | ⚪ 60% |
+**Couverture OWASP**: 6/10 catégories (60%)
 
 ---
-
-## 📖 SECTION 4 : CAS D'USAGE
-**Confiance: 80% 🟢** | **Source: Objectifs projet, parties prenantes**
-
-### 4.1 Acteurs du Système
